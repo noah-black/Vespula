@@ -43,7 +43,7 @@ Synthesizer::Synthesizer() {
 void Synthesizer::start() {
 	initscr();
 	nodelay(stdscr, true);
-	noecho();
+	//noecho();
 	char *buffer;
 	int i;
 	int sample;
@@ -72,8 +72,9 @@ void Synthesizer::start() {
 void Synthesizer::checkInput(void) {
 	char c;
 	c = getch();
-	if(c == ERR) 
+	if(c == ERR) {
 		return;
+	}
 	if(c == 'q') {
 		state = QUITTING;
 		return;

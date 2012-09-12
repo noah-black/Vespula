@@ -4,21 +4,27 @@
 #define SAMPLE_RATE 44100.0
 #define CEILING 32767.0
 
-#include "soundmodule.h"
 #include <vector>
+#include "note.h"
 
 using namespace std;
 
-class Delay : public SoundModule {
+class Delay {
 	public:
-		Delay(double feedback, double periodSeconds, double dry);
-		double getSample(double sample);
+		Delay(double periodSeconds, Note *prototype);
+		double getSample();
+		void addNote(double freq);
+		void setTranspose(int transpose);
+		void setPrototype(Note *prototype);
 	private:
-	 	vector<double> loop;
-		double feedback;
+		Note *prototype;
+		double getNotesSample();
+		void playNote(double freq);
+		vector<double> freqs;
+		vector<Note*> notes;
 		int period;
-		double dry;
 		int phase;
+		int transpose;
 };
 
 #endif

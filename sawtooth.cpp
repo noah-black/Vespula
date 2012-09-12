@@ -16,9 +16,14 @@ double Sawtooth::getSample() {
 		release_factor = 0;
 	phase = fmod(samples_elapsed, period);
 	samples_elapsed++;
-	return (((phase/period) * 2) - 1) * CEILING * level * release_factor;
+//	return (((phase/period) * 2) - 1) * CEILING * level * release_factor;
+	return (((phase/period) * 2) - 1) * CEILING * level;
 }
 
 bool Sawtooth::isDead() {
 	return (samples_elapsed > (release * SAMPLE_RATE));
+}
+
+Note *Sawtooth::clone(double newfreq) {
+	return new Sawtooth(newfreq, release, level);
 }

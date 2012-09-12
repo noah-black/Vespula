@@ -4,10 +4,12 @@
 #define SAMPLE_RATE 44100.0
 #define CEILING 32767.0
 
-#include "soundmodule.h"
 #include "note.h"
 #include <vector>
 #include <map>
+#include "delay.h"
+#include "triangle.h"
+#include "sawtooth.h"
 
 using namespace std;
 
@@ -40,9 +42,12 @@ class Keyboard {
 		void initMaps();
 
 		vector<Note*> notes;
-		vector<SoundModule*> modules;
+		Delay delay;
 		map<enum note, double> freqs;
 		map<char, enum note> keyMap;
+		Note *currentNote;
+		Triangle triangle;
+		Sawtooth sawtooth;
 		int octave;
 };
 

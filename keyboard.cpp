@@ -2,16 +2,18 @@
 #include "sawtooth.h"
 #include "delay.h"
 #include <math.h>
+#include <stdio.h>
 
 using namespace std;
 
 char notekeys[] = {'a', 'w', 's', 'e', 'd', 'f', 't', 'g', 'y', 'h', 'u', 'j', 'k', 'o', 'l'};
 
-Keyboard::Keyboard() {
+Keyboard::Keyboard() : sawtooth(440, 0.02, 0.1), triangle(440, 0.02, 0.1), delay(2, &sawtooth) {
+	currentNote = &sawtooth;
 	octave = 0;
 	initMaps();
-	modules.push_back(new Delay(1, 2, 0.5));
 }
+	
 
 void Keyboard::initMaps() {
 	freqs[a] = 440;
@@ -52,6 +54,10 @@ void Keyboard::takeInput(char c) {
 		playNote(c);
 		return;
 	}
+	if(c >= '0' && c <= '9') {
+		delay.setTranspose(c - '0');
+		return;
+	}
 	switch(c) {
 		case 'z':  
 			if (octave > -3) 
@@ -60,6 +66,26 @@ void Keyboard::takeInput(char c) {
 		case 'x': 
 			if (octave < 3)
 				octave++; 
+			break;
+		case 'c':
+			currentNote = &sawtooth;
+			delay.setPrototype(&sawtooth);
+			break;
+		case 'v':
+			currentNote = &triangle;
+			delay.setPrototype(&triangle);
+			break;
+		case 'b':
+			currentNote->incrementRelease(-0.05);
+			break;
+		case 'n':
+			currentNote->incrementRelease(0.05);
+			break;
+		case 'm':
+			currentNote->incrementLevel(-0.05);
+			break;
+		case ',':
+			currentNote->incrementLevel(0.05);
 			break;
 	}
 }
@@ -75,23 +101,9 @@ bool Keyboard::isNote(char c) {
 }
 
 void Keyboard::playNote(char c) {
-	notes.push_back(new Sawtooth(freqs[keyMap[c]] * pow(2.0, octave), 0.1, 0.1));
+	delay.addNote(freqs[keyMap[c]] * pow(2.0, octave));
 }
 
 double Keyboard::getSample() {
-	vector<Note*>::iterator it;
-	vector<SoundModule*>::iterator modit;
-	double sample;
-	sample = 0;
-	it = notes.begin();
-	while(it != notes.end()) {
-		sample += (*it)->getSample();
-		if((*it)->isDead())
-			it = notes.erase(it);
-		else
-			it++;
-	}
-	for(modit = modules.begin(); modit != modules.end(); modit++)
-		sample = (*modit)->getSample(sample);
-	return sample;
+	return delay.getSample();	
 }
