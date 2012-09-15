@@ -1,6 +1,5 @@
 #ifndef MIXER_H
 #define MIXER_H 
-
 #include <QObject>
 #include <vector>
 #include <map>
@@ -14,8 +13,7 @@ using namespace std;
 
 enum note {
 	a,
-	aSharp,
-	b,
+	aSharp, b,
 	c,
 	cSharp,
 	d,
@@ -33,33 +31,28 @@ enum note {
 class Keyboard : public SoundProcessor {
 	public:
 		Keyboard();
-		double getSample();
-		void playNote(enum note n);
-		void releaseNote(enum note n);
-		void setTriangle();
-		void setSawtooth();
-		void setSquare();
-		void setSine();
+		virtual double getSample();
+		virtual void playNote(enum note n);
+		virtual void releaseNote(enum note n);
+		void setOctave(int i);
 		void setTranspose(int i);
 		void setAttack(double i);
 		void setDecay(double i);
 		void setSustain(double i);
 		void setRelease(double i);
-	private:
+		void setWaveform(int i);
+		vector<Note*> getWaveforms();
+	protected:
+		double adsrFactor(Note *note);
+		Note *currentSound;
+		map<enum note, double> freqs;
 		bool isNote(char c);
 		void initMaps();
-		double adsrFactor(Note *note);
 		double adsFactor(int samplesElapsed);
 
 		vector<Note*> notes;
-		map<enum note, double> freqs;
+		vector<Note*> waveforms;
 		map<enum note, Note*> lastNoteFor;
-		Note *currentSound;
-		Triangle triangle;
-		Sawtooth sawtooth;
-		Square square;
-		Sine sine;
-
 		int octave;
 		int transpose;
 

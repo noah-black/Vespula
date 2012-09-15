@@ -9,5 +9,6 @@ class Sine: public Note {
 		Sine();
 		double getMySample();
 		Note *clone(double freq);
+		string getName();
 };
 #endif

@@ -6,37 +6,30 @@ using namespace std;
 
 
 Keyboard::Keyboard() {
-	currentSound = &sawtooth;
 	octave = 0; 
 	transpose = 0;
 	attackTime = 0;
 	decayTime = 0;
 	sustainLevel = 1;
 	releaseTime = 0;
-	level = 0.1;
+	level = 0.1; 
+	waveforms.push_back(new Sawtooth());
+	waveforms.push_back(new Triangle());
+	waveforms.push_back(new Square());
+	waveforms.push_back(new Sine());
+	currentSound = waveforms[0];
 	initMaps();
 }
 
 void Keyboard::initMaps() {
-	freqs[a] = 440;
-	freqs[aSharp] = 469.66667;
-	freqs[b] = 490;
-	freqs[c] = 522.5;
-	freqs[cSharp] = 550;
-	freqs[d] = 583.33333;
-	freqs[dSharp] = 625.77778;
-	freqs[e] = 660;
-	freqs[f] = 691.42857;
-	freqs[fSharp] = 736.66667;
-	freqs[g] = 782.22222;
-	freqs[gSharp] = 825;
-	freqs[a2] = 880;
-	freqs[aSharp2] = 938.66667;
-	freqs[b2] = 980;
+	for(int i = 0; i <= (int)b2; i++)
+		freqs[(enum note)i] = 440*pow(2.0, ((double)i/12));
 }
 
 void Keyboard::playNote(enum note n) {
-	Note *note = currentSound->clone(freqs[n]*pow(2.0, ((double)transpose)/12));
+	if(lastNoteFor.find(n) != lastNoteFor.end() && !lastNoteFor[n]->isReleased())
+		lastNoteFor[n]->release();
+	Note *note = currentSound->clone(freqs[n]*pow(2.0, octave+((double)transpose)/12));
 	lastNoteFor[n] = note;
 	notes.push_back(note);
 }
@@ -60,20 +53,8 @@ double Keyboard::getSample() {
 	return sample;
 }
 
-void Keyboard::setTriangle() {
-	currentSound = &triangle;
-}
-
-void Keyboard::setSawtooth() {
-	currentSound = &sawtooth;
-}
-
-void Keyboard::setSquare() {
-	currentSound = &square;
-}
-
-void Keyboard::setSine() {
-	currentSound = &sine;
+void Keyboard::setOctave(int i) {
+	octave = i;
 }
 
 void Keyboard::setTranspose(int i) {
@@ -96,6 +77,10 @@ void Keyboard::setRelease(double i) {
 	releaseTime = i;
 }
 
+void Keyboard::setWaveform(int i) {
+	currentSound = waveforms[i];
+}
+
 double Keyboard::adsFactor(int samplesElapsed) {
 	if (samplesElapsed < (attackTime * SAMPLE_RATE))
 		return (samplesElapsed) / (attackTime * SAMPLE_RATE);
@@ -105,10 +90,13 @@ double Keyboard::adsFactor(int samplesElapsed) {
 }
 
 double Keyboard::adsrFactor(Note *note) {
-	double factor, samplesElapsed, releaseSample, releaseLevel;
+	double factor, releaseLevel;
+	int samplesElapsed, releaseSample;
 	samplesElapsed = note->getSamplesElapsed();
 	if(note->isReleased()) {
 		releaseSample = note->getReleaseSample();
+		if((samplesElapsed - releaseSample) >= (releaseTime*SAMPLE_RATE))
+			return 0;
 		releaseLevel = adsFactor(releaseSample);
 		factor = releaseLevel * (1 - (samplesElapsed - releaseSample) / (releaseTime * SAMPLE_RATE));
 		if (factor < 0)
@@ -118,4 +106,8 @@ double Keyboard::adsrFactor(Note *note) {
 		return factor;
 	}
 	return adsFactor(samplesElapsed);
+}
+
+vector<Note*> Keyboard::getWaveforms() {
+	return waveforms;
 }

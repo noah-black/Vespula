@@ -9,5 +9,6 @@ class Triangle: public Note {
 		Triangle();
 		double getMySample();
 		Note *clone(double freq);
+		string getName();
 };
 #endif

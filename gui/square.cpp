@@ -11,3 +11,7 @@ double Square::getMySample() {
 Note *Square::clone(double freq) {
 	return new Square(freq, level);
 }
+
+string Square::getName() {
+	return "Square";
+}

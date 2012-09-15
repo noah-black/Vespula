@@ -9,6 +9,7 @@ class Sawtooth : public Note {
 		Sawtooth();
 		double getMySample();
 		Note *clone(double freq);
+		string getName();
 };
 
 #endif

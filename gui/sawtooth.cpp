@@ -10,3 +10,7 @@ double Sawtooth::getMySample() {
 Note *Sawtooth::clone(double newfreq) {
 	return new Sawtooth(newfreq, level);
 }
+
+string Sawtooth::getName() {
+	return "Sawtooth";
+}

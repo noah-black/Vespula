@@ -2,6 +2,9 @@
 #define NOTE_H
 
 #include "soundprocessor.h"
+#include <string>
+
+using namespace std;
 
 enum note_state {
 	held,
@@ -16,14 +19,16 @@ class Note {
 		int getSamplesElapsed();
 		int getReleaseSample();
 		void setFreq(double freq);
-		void setRelease(double releaseTime);
+		void setReleaseSample(int);
 		void setLevel(double level);
 		void incrementLevel(double amount);
 		bool isDead(double);
+		double getFreq();
 
 		double getSample();
 		virtual double getMySample() = 0;
 		virtual Note *clone(double freq) = 0;
+		virtual string getName() = 0;
 	protected:
 		void advance();
 		double phase();

@@ -8,6 +8,7 @@ Note::Note(double freq, double level) {
 	state = held;
 	period = SAMPLE_RATE/freq;
 	samplesElapsed = 0;
+	releaseSample = -1;
 }
 
 void Note::setFreq(double freq) {
@@ -22,13 +23,24 @@ int Note::getSamplesElapsed() {
 	return samplesElapsed;
 }
 
+double Note::getFreq() {
+	return freq;
+}
+
 int Note::getReleaseSample() {
 	return releaseSample;
 }
 
+void Note::setReleaseSample(int releaseSample) {
+	this->releaseSample = releaseSample;
+}
+
 void Note::release() {
+	if (this->isReleased()) 
+		return;
 	state = released;
 	releaseSample = samplesElapsed;
+
 }
 
 bool Note::isReleased() {

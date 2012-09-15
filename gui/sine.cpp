@@ -11,3 +11,7 @@ double Sine::getMySample() {
 Note *Sine::clone(double freq) {
 	return new Sine(freq, level);
 }
+
+string Sine::getName() {
+	return "Sine";
+}

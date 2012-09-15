@@ -10,7 +10,10 @@
 #include <QKeyEvent>
 #include "keyboard.h"
 #include "sawtooth.h"
+#include "note.h"
+#include "lpf.h"
 #include "vibrato.h"
+#include "looper.h"
 
 using namespace std;
 
@@ -26,6 +29,7 @@ class Synthesizer : public QWidget {
 		Synthesizer();
 		~Synthesizer();
 		void start();
+		vector<Note*> getWaveforms();
 	public slots:
 		void done();
 		void changeWaveform(int value);
@@ -34,16 +38,22 @@ class Synthesizer : public QWidget {
 		void setDecay(int value);
 		void setSustain(int value);
 		void setRelease(int value);
+		void setVibDepth(int value);
+		void setVibPeriod(int value);
 	private:
+		snd_pcm_uframes_t frames;
+		void configureSoundDevice();
+		Looper keyboard;
+		//Keyboard keyboard;
+		SoundProcessor *main;
 		Vibrato vibrato;
+		//LPF lpf;
+		//Looper looper;
 		void initMaps();
-		Keyboard keyboard;
 		void fillFrame(char *buffer, int i, int sample);
 		enum program_state state;
 		map<int, enum note> keyMap;
-		int buffersize;
 		snd_pcm_t *handle;
-		snd_pcm_uframes_t frames;
 	protected:
 		void keyPressEvent(QKeyEvent *event);
 		void keyReleaseEvent(QKeyEvent *event);

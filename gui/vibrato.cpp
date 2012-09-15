@@ -9,19 +9,19 @@ Vibrato::Vibrato(SoundProcessor *input, double period, double depth) {
 	cursor = 0;
 	phase = 0;
 	lastSample = 0;
-	sampleGitCount = 0;
+	pthread_mutex_init(&mutexsum, NULL);
 }
 
 double Vibrato::getSample() {
 	double virtSampleSize, sample, offset, amountToRead;
 	double i;
+	pthread_mutex_lock (&mutexsum);
 	sample = 0;
 	virtSampleSize = 1 + ((depth * sin(2*PI*(((double)phase)/period))) / SAMPLE_RATE);
 	for(i = 0; i < virtSampleSize;){
 		offset = fmod(cursor, 1);
 		if(offset == 0) { 
 			lastSample = input->getSample();
-			sampleGitCount++;
 		}
 		amountToRead = (virtSampleSize-i > 1-offset) ? 1-offset : virtSampleSize-i;
 		i += amountToRead;
@@ -30,9 +30,23 @@ double Vibrato::getSample() {
 	}
 	phase++;
 	if(phase >= period && cursor >= period) {
-		sampleGitCount = 0;
 		phase -= period;
 		cursor -= period;
 	}
+	pthread_mutex_unlock (&mutexsum);
 	return sample;
+}
+
+void Vibrato::setDepth(double depth) {
+	pthread_mutex_lock (&mutexsum);
+	this->depth = depth;
+	pthread_mutex_unlock (&mutexsum);
+}
+
+void Vibrato::setPeriod(double period) {
+	pthread_mutex_lock (&mutexsum);
+//	phase = 0;
+//	cursor = 0;
+	this->period = (int)(period * SAMPLE_RATE);
+	pthread_mutex_unlock (&mutexsum);
 }

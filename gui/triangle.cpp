@@ -11,3 +11,7 @@ double Triangle::getMySample() {
 Note *Triangle::clone(double freq) {
 	return new Triangle(freq, level);
 }
+
+string Triangle::getName() {
+	return "Triangle";
+}
