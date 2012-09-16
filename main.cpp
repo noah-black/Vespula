@@ -49,6 +49,9 @@ int main(int argc, char *argv[])
 
 	QSlider vibPeriodSelect(&synth);
 	vibPeriodSelect.setRange(1, 100);
+	
+	QLabel attackLabel("A", &attackSelect);
+	attackLabel.setAlignment(Qt::AlignBottom);
 
 	layout.addWidget(&waveformSelect);
 	layout.addWidget(&transposeSelect);
@@ -88,6 +91,7 @@ int main(int argc, char *argv[])
 
 	QObject::connect(&vibPeriodSelect, SIGNAL(valueChanged(int)), &synth, SLOT(setVibPeriod(int)));
 	QObject::connect(&vibPeriodSelect, SIGNAL(valueChanged(int)), &synth, SLOT(setFocus()));
+
 	app.exec();
 
 	return 0;

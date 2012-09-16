@@ -1,10 +1,11 @@
 #include "synthesizer.h"
 
-Synthesizer::Synthesizer() : keyboard(2), vibrato(&keyboard, 0.1, 0) {
-//Synthesizer::Synthesizer() : keyboard(), vibrato(&keyboard, 0.1, 0) {
+//Synthesizer::Synthesizer() : keyboard(2), vibrato(&keyboard, 0.1, 0) {
+Synthesizer::Synthesizer() : keyboard(2), vibrato(&keyboard, 0.1, 0), chorus(&vibrato, 1, 100) {
 	initMaps();
 	state = NOT_RUNNING;
-	main = &vibrato;
+	main = &chorus;
+	//main = &vibrato;
 	//main = &keyboard;
 	//main = &lpf;
 	configureSoundDevice();

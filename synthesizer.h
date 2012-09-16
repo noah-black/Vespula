@@ -14,6 +14,7 @@
 #include "lpf.h"
 #include "vibrato.h"
 #include "looper.h"
+#include "chorus.h"
 
 using namespace std;
 
@@ -47,6 +48,7 @@ class Synthesizer : public QWidget {
 		//Keyboard keyboard;
 		SoundProcessor *main;
 		Vibrato vibrato;
+		Chorus chorus;
 		//LPF lpf;
 		void initMaps();
 		void fillFrame(char *buffer, int i, int sample);
