@@ -5,9 +5,11 @@
 
 class Sawtooth : public Note {
 	public:
-		Sawtooth(double freq, double release, double level);
-		double getSample();
+		Sawtooth(double freq, double level);
+		Sawtooth();
+		double getMySample();
 		Note *clone(double freq);
-		bool isDead();
+		string getName();
 };
+
 #endif
