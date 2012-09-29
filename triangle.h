@@ -5,10 +5,10 @@
 
 class Triangle: public Note {
 	public:
-		Triangle(double, double);
+		Triangle(double, enum note);
 		Triangle();
 		double getMySample();
-		Note *clone(double freq);
+		Note *clone(double freq, enum note);
 		string getName();
 };
 #endif

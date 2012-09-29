@@ -1,14 +1,11 @@
 #include "synthesizer.h"
 
-//Synthesizer::Synthesizer() : keyboard(2), vibrato(&keyboard, 0.1, 0) {
-Synthesizer::Synthesizer() : keyboard(2), vibrato(&keyboard, 0.1, 0), chorus(&vibrato, 1, 100) {
+Synthesizer::Synthesizer() : looper(2), normalKeyboard(), keyboard(&normalKeyboard), vibrato(keyboard, 0.1, 0), chorus(&vibrato, 1, 100), lpf(&chorus), mainArea(this), envelope("Envelope", &mainArea), attackSelect(&envelope), decaySelect(&envelope), sustainSelect(&envelope), releaseSelect(&envelope), vibDepthSelect(&mainArea), vibPeriodSelect(&mainArea), waveformSelect(&mainArea), transposeSelect(&mainArea) {
 	initMaps();
 	state = NOT_RUNNING;
-	main = &chorus;
-	//main = &vibrato;
-	//main = &keyboard;
-	//main = &lpf;
+	main = &lpf;
 	configureSoundDevice();
+	prepareGui();
 }
 void Synthesizer::start() {
 	char *buffer;
@@ -19,7 +16,7 @@ void Synthesizer::start() {
 	state = RUNNING;
 	while(state == RUNNING) {
 		for (i = 0; i < frames; i++) {
-			sample = main->getSample();
+			sample = (main->getSample()*CEILING);
 			fillFrame(buffer, i, sample);
 		}
 		rc = snd_pcm_writei(handle, buffer, frames);
@@ -36,6 +33,84 @@ void Synthesizer::start() {
 	free(buffer);
 }
 
+void Synthesizer::prepareGui() {
+	vector<Note*> waveforms = getWaveforms();
+	for(vector<Note*>::iterator it = waveforms.begin(); it != waveforms.end(); ++it)
+		waveformSelect.addItem(QString::fromStdString((*it)->getName()));
+
+	transposeSelect.setRange(-12, 12);
+	transposeSelect.setSingleStep(1);
+
+	attackSelect.setRange(0, 100);
+
+	decaySelect.setRange(0, 100);
+
+	sustainSelect.setRange(0, 100);
+	sustainSelect.setValue(100);
+
+	releaseSelect.setRange(0, 100);
+
+	vibDepthSelect.setRange(0, 100);
+
+	vibPeriodSelect.setRange(1, 100);
+
+	levelSelect.setRange(0, 100);
+
+	fmDepthSelect.setRange(0, 100);
+
+	QHBoxLayout *layout = new QHBoxLayout();
+	QHBoxLayout *envLayout = new QHBoxLayout();
+
+	envLayout->addWidget(&attackSelect);
+	envLayout->addWidget(&decaySelect);
+	envLayout->addWidget(&sustainSelect);
+	envLayout->addWidget(&releaseSelect);
+	layout->addWidget(&waveformSelect);
+	layout->addWidget(&transposeSelect);
+	layout->addWidget(&envelope);
+	layout->addWidget(&vibDepthSelect);
+	layout->addWidget(&vibPeriodSelect);
+	layout->addWidget(&levelSelect);
+	layout->addWidget(&fmDepthSelect);
+	mainArea.setLayout(layout);
+	envelope.setLayout(envLayout);
+	setCentralWidget(&mainArea);
+
+	show();
+	setFocus();
+
+	QObject::connect(&waveformSelect, SIGNAL(activated(int)), this, SLOT(changeWaveform(int)));
+	QObject::connect(&waveformSelect, SIGNAL(activated(int)), this, SLOT(setFocus()));
+
+	QObject::connect(&transposeSelect, SIGNAL(valueChanged(int)), this, SLOT(setTranspose(int)));
+	QObject::connect(&transposeSelect, SIGNAL(valueChanged(int)), this, SLOT(setFocus()));
+
+	QObject::connect(&attackSelect, SIGNAL(valueChanged(int)), this, SLOT(setAttack(int)));
+	QObject::connect(&attackSelect, SIGNAL(valueChanged(int)), this, SLOT(setFocus()));
+
+	QObject::connect(&decaySelect, SIGNAL(valueChanged(int)), this, SLOT(setDecay(int)));
+	QObject::connect(&decaySelect, SIGNAL(valueChanged(int)), this, SLOT(setFocus()));
+
+	QObject::connect(&sustainSelect, SIGNAL(valueChanged(int)), this, SLOT(setSustain(int)));
+	QObject::connect(&sustainSelect, SIGNAL(valueChanged(int)), this, SLOT(setFocus()));
+
+	QObject::connect(&releaseSelect, SIGNAL(valueChanged(int)), this, SLOT(setRelease(int)));
+	QObject::connect(&releaseSelect, SIGNAL(valueChanged(int)), this, SLOT(setFocus()));
+
+	QObject::connect(&vibDepthSelect, SIGNAL(valueChanged(int)), this, SLOT(setVibDepth(int)));
+	QObject::connect(&vibDepthSelect, SIGNAL(valueChanged(int)), this, SLOT(setFocus()));
+
+	QObject::connect(&vibPeriodSelect, SIGNAL(valueChanged(int)), this, SLOT(setVibPeriod(int)));
+	QObject::connect(&vibPeriodSelect, SIGNAL(valueChanged(int)), this, SLOT(setFocus()));
+
+	QObject::connect(&levelSelect, SIGNAL(valueChanged(int)), this, SLOT(setLevel(int)));
+	QObject::connect(&levelSelect, SIGNAL(valueChanged(int)), this, SLOT(setFocus()));
+
+	QObject::connect(&fmDepthSelect, SIGNAL(valueChanged(int)), this, SLOT(setFmDepth(int)));
+	QObject::connect(&fmDepthSelect, SIGNAL(valueChanged(int)), this, SLOT(setFocus()));
+
+}
+
 void Synthesizer::fillFrame(char *buffer, int i, int sample) {
 	buffer[i * 4] = sample & 255;
 	buffer[(i * 4) + 2] = sample & 255;
@@ -48,12 +123,12 @@ void Synthesizer::keyPressEvent(QKeyEvent *event) {
 	int key = event->key();
 	if(key >= Qt::Key_1 && key <= Qt::Key_9) {
 		if ((event->modifiers() & Qt::ControlModifier) == Qt::ControlModifier)
-			keyboard.setTransposeInKey(key - Qt::Key_1);
+			keyboard->setTransposeInKey(key - Qt::Key_1);
 		else
-			keyboard.setOctave(key - Qt::Key_1 - 4);
+			keyboard->setOctave(key - Qt::Key_1 - 4);
 	}
 	else if(!event->isAutoRepeat() && keyMap.find(key) != keyMap.end()) {
-		keyboard.playNote(keyMap[key]);
+		keyboard->playNote(keyMap[key]);
 	}
 	else
 		event->ignore();
@@ -62,7 +137,7 @@ void Synthesizer::keyPressEvent(QKeyEvent *event) {
 void Synthesizer::keyReleaseEvent(QKeyEvent *event) {
 	setFocus();
 	if(!event->isAutoRepeat() && keyMap.find(event->key()) != keyMap.end()) {
-		keyboard.releaseNote(keyMap[event->key()]);
+		keyboard->releaseNote(keyMap[event->key()]);
 	}
 	else
 		event->ignore();
@@ -73,27 +148,35 @@ void Synthesizer::done() {
 }
 
 void Synthesizer::changeWaveform(int i) {
-	keyboard.setWaveform(i);
+	keyboard->setWaveform(i);
 }
 
 void Synthesizer::setTranspose(int i) {
-	keyboard.setTranspose(i);
+	keyboard->setTranspose(i);
 }
 
 void Synthesizer::setAttack(int i) {
-	keyboard.setAttack(((double)i)/50);
+	keyboard->setAttack(((double)i)/50);
 }
 
 void Synthesizer::setDecay(int i) {
-	keyboard.setDecay(((double)i)/50);
+	keyboard->setDecay(((double)i)/50);
 }
 
 void Synthesizer::setRelease(int i) {
-	keyboard.setRelease(((double)i)/50);
+	keyboard->setRelease(((double)i)/50);
 }
 
 void Synthesizer::setSustain(int i) {
-	keyboard.setSustain(((double)i)/100);
+	keyboard->setSustain(((double)i)/100);
+}
+
+void Synthesizer::setLevel(int i) {
+	keyboard->setLevel(((double)i)/1000);
+}
+
+void Synthesizer::setFmDepth(int i) {
+	keyboard->setFmDepth(((double)i)*100);
 }
 
 void Synthesizer::setVibDepth(int value) {
@@ -156,7 +239,7 @@ void Synthesizer::initMaps() {
 }
 
 vector<Note*> Synthesizer::getWaveforms() {
-	return keyboard.getWaveforms();
+	return keyboard->getWaveforms();
 }
 
 Synthesizer::~Synthesizer() {

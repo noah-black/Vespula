@@ -5,9 +5,19 @@
 #include <vector>
 #include <map>
 #include <alsa/asoundlib.h>
-#include <QWidget>
+#include <QMainWindow>
 #include <QObject>
+#include <QGroupBox>
 #include <QKeyEvent>
+#include <QPushButton>
+#include <QComboBox>
+#include <QLabel>
+#include <QtConcurrentRun>
+#include <QSpinBox>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QSlider>
+#include <QString>
 #include "keyboard.h"
 #include "sawtooth.h"
 #include "note.h"
@@ -24,7 +34,7 @@ enum program_state {
 	QUITTING
 };
 
-class Synthesizer : public QWidget {
+class Synthesizer : public QMainWindow {
 	Q_OBJECT
 	public:
 		Synthesizer();
@@ -41,20 +51,41 @@ class Synthesizer : public QWidget {
 		void setRelease(int value);
 		void setVibDepth(int value);
 		void setVibPeriod(int value);
+		void setLevel(int i);
+		void setFmDepth(int i);
 	private:
-		snd_pcm_uframes_t frames;
+		void prepareGui();
 		void configureSoundDevice();
-		Looper keyboard;
-		//Keyboard keyboard;
+		Looper looper;
+		Keyboard normalKeyboard;
+		Keyboard *keyboard;
 		SoundProcessor *main;
 		Vibrato vibrato;
 		Chorus chorus;
-		//LPF lpf;
+		LPF lpf;
 		void initMaps();
 		void fillFrame(char *buffer, int i, int sample);
 		enum program_state state;
 		map<int, enum note> keyMap;
+
+		snd_pcm_uframes_t frames;
 		snd_pcm_t *handle;
+
+		QFrame mainArea;
+		QGroupBox envelope;
+		QSlider attackSelect;
+		QSlider decaySelect;
+		QSlider sustainSelect;
+		QSlider releaseSelect;
+		QSlider vibDepthSelect;
+		QSlider vibPeriodSelect;
+		QSlider levelSelect;
+		QSlider fmDepthSelect;
+		QComboBox waveformSelect;
+		QSpinBox transposeSelect;
+
+		//QHBoxLayout layout;
+
 	protected:
 		void keyPressEvent(QKeyEvent *event);
 		void keyReleaseEvent(QKeyEvent *event);

@@ -5,10 +5,10 @@
 
 class Square: public Note {
 	public:
-		Square(double freq, double level);
+		Square(double freq, enum note);
 		Square();
 		double getMySample();
-		Note *clone(double freq);
+		Note *clone(double freq, enum note);
 		string getName();
 };
 #endif

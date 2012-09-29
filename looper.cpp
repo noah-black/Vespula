@@ -31,7 +31,7 @@ double Looper::getNotesSample() {
 	vector<Note*>::iterator it;
 	it = notes.begin();
 	while(it != notes.end()) {
-		sample += (*it)->getSample() * adsrFactor(*it);
+		sample += (*it)->getSample() * adsrFactor(*it) * level;
 		if(!((*it)->isReleased()) && ((*it)->getReleaseSample() == (*it)->getSamplesElapsed())) {
 			(*it)->release();
 		}
@@ -65,7 +65,7 @@ void Looper::releaseNote(enum note n) {
 }
 
 void Looper::playSavedNote(struct savedNote *sNote) {
-	Note *note = currentSound->clone(freqs[getTransposition(sNote->note)]*pow(2.0, sNote->octave + ((double)transpose)/12));
+	Note *note = currentSound->clone(freqs[getTransposition(sNote->note)]*pow(2.0, sNote->octave + ((double)transpose)/12), sNote->note);
 	note->setReleaseSample(sNote->duration);
 	notes.push_back(note);
 }

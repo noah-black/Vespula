@@ -3,44 +3,16 @@
 #include <QObject>
 #include <vector>
 #include <map>
+#include <math.h>
+#include <stdio.h>
 #include "triangle.h"
 #include "sawtooth.h"
 #include "square.h"
 #include "sine.h"
+#include "fm.h"
 #include "soundprocessor.h"
 
 using namespace std;
-
-enum note {
-	n1,
-	s1,
-	n2,
-	s2,
-	n3,
-	n4,
-	s4,
-	n5,
-	s5,
-	n6,
-	s6,
-	n7,
-	n8,
-	s8,
-	n9,
-	s9,
-	n10,
-	n11,
-	s11,
-	n12,
-	s12,
-	n13,
-	s13,
-	n14,
-	n15,
-	s15,
-	n16,
-	s16
-};
 
 class Keyboard : public SoundProcessor {
 	public:
@@ -56,15 +28,18 @@ class Keyboard : public SoundProcessor {
 		void setSustain(double i);
 		void setRelease(double i);
 		void setWaveform(int i);
+		void setLevel(double i);
+		void setFmDepth(double i);
 		vector<Note*> getWaveforms();
 	protected:
 		double adsrFactor(Note *note);
 		Note *currentSound;
 		map<enum note, double> freqs;
 		bool isNote(char c);
+		enum note getTransposition(enum note n, int transposeInKey);
+		enum note getTransposition(enum note n);
 		void initMaps();
 		double adsFactor(int samplesElapsed);
-		enum note getTransposition(enum note);
 		bool isNatural(enum note n);
 		bool isSharp(enum note n);
 		enum note getNatural(int n);

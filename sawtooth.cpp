@@ -1,14 +1,17 @@
 #include "sawtooth.h"
 
-Sawtooth::Sawtooth(double freq, double level) : Note(freq, level) {} 
-Sawtooth::Sawtooth() : Note() {} 
-
-double Sawtooth::getMySample() {
-	return (((phase()/period) * 2) - 1);
+Sawtooth::Sawtooth(double freq, enum note baseNote) : Note(freq, baseNote) {
 }
 
-Note *Sawtooth::clone(double newfreq) {
-	return new Sawtooth(newfreq, level);
+Sawtooth::Sawtooth() : Note() { 
+}
+
+double Sawtooth::getMySample() {
+	return (phase() < period*antiAlias) ? (((phase()/(period*antiAlias)) * 2) - 1) : ((((phase() - (period*antiAlias))/(period*(1-antiAlias))) * -2) + 1);
+}
+
+Note *Sawtooth::clone(double newfreq, enum note baseNote) {
+	return new Sawtooth(newfreq, baseNote);
 }
 
 string Sawtooth::getName() {

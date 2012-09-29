@@ -1,9 +1,6 @@
 #include "keyboard.h"
-#include <math.h>
-#include <stdio.h>
 
 using namespace std;
-
 
 Keyboard::Keyboard() {
 	octave = 0; 
@@ -13,11 +10,12 @@ Keyboard::Keyboard() {
 	decayTime = 0;
 	sustainLevel = 1;
 	releaseTime = 0;
-	level = 0.1; 
+	level = 0.01; 
 	waveforms.push_back(new Sawtooth());
 	waveforms.push_back(new Triangle());
 	waveforms.push_back(new Square());
 	waveforms.push_back(new Sine());
+	//currentSound = new FM(waveforms[0]);
 	currentSound = waveforms[0];
 	initMaps();
 }
@@ -27,10 +25,18 @@ void Keyboard::initMaps() {
 		freqs[(enum note)i] = 440*pow(2.0, ((double)i/12));
 }
 
+void Keyboard::setFmDepth(double i) {
+	((FM*)currentSound)->setDepth(i);
+}
+
+void Keyboard::setLevel(double i) {
+	level = i;
+}
+
 void Keyboard::playNote(enum note n) {
 	if(lastNoteFor.find(n) != lastNoteFor.end() && !lastNoteFor[n]->isReleased())
 		lastNoteFor[n]->release();
-	Note *note = currentSound->clone(freqs[getTransposition(n)]*pow(2.0, octave+((double)transpose)/12));
+	Note *note = currentSound->clone(freqs[getTransposition(n)]*pow(2.0, octave+((double)transpose)/12), n);
 	lastNoteFor[n] = note;
 	notes.push_back(note);
 }
@@ -38,6 +44,13 @@ void Keyboard::playNote(enum note n) {
 void Keyboard::releaseNote(enum note n) {
 	if(lastNoteFor.find(n) != lastNoteFor.end())
 		lastNoteFor[n]->release();
+}
+
+enum note Keyboard::getTransposition(enum note n, int transposeInKey) {
+	if(isNatural(n))
+		return getNatural(getInterval(n)+transposeInKey);
+	else
+		return getSharp(getInterval(n)+transposeInKey);
 }
 
 enum note Keyboard::getTransposition(enum note n) {
@@ -141,7 +154,7 @@ double Keyboard::getSample() {
 	vector<Note*>::iterator it;
 	it = notes.begin();
 	while(it != notes.end()) {
-		sample += (*it)->getSample() * adsrFactor(*it);
+		sample += (*it)->getSample() * adsrFactor(*it) * level;
 		if((*it)->isDead(releaseTime))
 			it = notes.erase(it);
 		else
@@ -151,7 +164,6 @@ double Keyboard::getSample() {
 }
 
 void Keyboard::setOctave(int i) {
-	printf("octave from %d to %d\n", octave, i);
 	octave = i;
 }
 
@@ -160,7 +172,18 @@ void Keyboard::setTranspose(int i) {
 }
 
 void Keyboard::setTransposeInKey(int i) {
+	enum note oldNote, newNote;
+	double oldFreq, newFreq;
+	int oldTransposeInKey = transposeInKey;
+	vector<Note*>::iterator it;
 	transposeInKey = i;
+	for(it = notes.begin(); it != notes.end(); ++it) {
+		oldNote = getTransposition((*it)->getNote(), oldTransposeInKey);
+		newNote = getTransposition((*it)->getNote(), transposeInKey);
+		oldFreq = (*it)->getFreq();
+		newFreq = oldFreq * (freqs[newNote]/freqs[oldNote]);
+		(*it)->setFreq(newFreq);
+	}
 }
 
 void Keyboard::setAttack(double i) {
@@ -180,7 +203,7 @@ void Keyboard::setRelease(double i) {
 }
 
 void Keyboard::setWaveform(int i) {
-	currentSound = waveforms[i];
+	currentSound = new FM(waveforms[i]);
 }
 
 double Keyboard::adsFactor(int samplesElapsed) {

@@ -5,10 +5,10 @@
 
 class Sine: public Note {
 	public:
-		Sine(double, double);
+		Sine(double, enum note);
 		Sine();
 		double getMySample();
-		Note *clone(double freq);
+		Note *clone(double freq, enum note);
 		string getName();
 };
 #endif

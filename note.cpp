@@ -2,9 +2,9 @@
 
 using namespace std;
 
-Note::Note(double freq, double level) {
+Note::Note(double freq, enum note baseNote) {
 	this->freq = freq;
-	this->level = level;
+	this->baseNote = baseNote;
 	state = held;
 	period = SAMPLE_RATE/freq;
 	samplesElapsed = 0;
@@ -13,10 +13,7 @@ Note::Note(double freq, double level) {
 
 void Note::setFreq(double freq) {
 	this->freq = freq;
-}
-
-void Note::setLevel(double level) {
-	this->level = level;
+	period = SAMPLE_RATE/freq;
 }
 
 int Note::getSamplesElapsed() {
@@ -25,6 +22,14 @@ int Note::getSamplesElapsed() {
 
 double Note::getFreq() {
 	return freq;
+}
+
+enum note Note::getNote() {
+	return baseNote;
+}
+
+void Note::setNote(enum note baseNote) {
+	this->baseNote = baseNote;
 }
 
 int Note::getReleaseSample() {
@@ -47,14 +52,6 @@ bool Note::isReleased() {
 	return state == released;
 }
 
-void Note::incrementLevel(double amount) {
-	level += amount;
-	if(level > 1)
-		level = 1;
-	else if(level < 0)
-		level = 0;
-}
-
 bool Note::isDead(double releaseTime) {
 	if(state != released)
 		return false;
@@ -72,5 +69,5 @@ double Note::phase() {
 
 double Note::getSample() {
 	advance();
-	return getMySample() * CEILING * level;
+	return getMySample();
 }

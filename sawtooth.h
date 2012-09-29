@@ -5,11 +5,13 @@
 
 class Sawtooth : public Note {
 	public:
-		Sawtooth(double freq, double level);
+		Sawtooth(double, enum note);
 		Sawtooth();
 		double getMySample();
-		Note *clone(double freq);
+		Note *clone(double freq, enum note);
 		string getName();
+	protected:
+		static const double antiAlias = 0.99;
 };
 
 #endif
