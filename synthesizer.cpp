@@ -1,6 +1,30 @@
 #include "synthesizer.h"
 
-Synthesizer::Synthesizer() : looper(2), normalKeyboard(), keyboard(&normalKeyboard), vibrato(keyboard, 0.1, 0), chorus(&vibrato, 1, 100), lpf(&chorus), mainArea(this), envelope("Envelope", &mainArea), attackSelect(&envelope), decaySelect(&envelope), sustainSelect(&envelope), releaseSelect(&envelope), vibDepthSelect(&mainArea), vibPeriodSelect(&mainArea), waveformSelect(&mainArea), transposeSelect(&mainArea) {
+Synthesizer::Synthesizer() : looper(2),
+ normalKeyboard(),
+ keyboard(&looper),
+ vibrato(keyboard, 0.1, 0),
+ chorus(&vibrato, 1, 100),
+ lpf(&chorus),
+ mainArea(this),
+ envelope(&mainArea),
+ envelopeLabel(&envelope),
+ attackSelect(&envelope),
+ attackLabel(&envelope),
+ decaySelect(&envelope),
+ decayLabel(&envelope),
+ sustainSelect(&envelope),
+ sustainLabel(&envelope),
+ releaseSelect(&envelope),
+ releaseLabel(&envelope),
+ vibratoSection(&mainArea),
+ vibratoLabel(&vibratoSection),
+ vibDepthSelect(&vibratoSection),
+ vibDepthLabel(&vibratoSection),
+ vibPeriodSelect(&vibratoSection),
+ vibPeriodLabel(&vibratoSection),
+ waveformSelect(&mainArea),
+ transposeSelect(&mainArea) {
 	initMaps();
 	state = NOT_RUNNING;
 	main = &lpf;
@@ -12,7 +36,7 @@ void Synthesizer::start() {
 	unsigned int i;
 	int rc;
 	int sample;
-	buffer = (char *) malloc(frames*4);
+	buffer = new char[frames*4];
 	state = RUNNING;
 	while(state == RUNNING) {
 		for (i = 0; i < frames; i++) {
@@ -27,10 +51,8 @@ void Synthesizer::start() {
 			fprintf(stderr, "error from writei: %s\n", snd_strerror(rc));
 		else if (rc != (unsigned)frames) 
 			fprintf(stderr, "short write, write %d frames\n", rc);
-		if(state == QUITTING)
-			break;
 	}
-	free(buffer);
+    delete[] buffer;
 }
 
 void Synthesizer::prepareGui() {
@@ -41,39 +63,59 @@ void Synthesizer::prepareGui() {
 	transposeSelect.setRange(-12, 12);
 	transposeSelect.setSingleStep(1);
 
+    envelopeLabel.setText("Envelope");
+
 	attackSelect.setRange(0, 100);
+    attackLabel.setText("A");
 
 	decaySelect.setRange(0, 100);
+    decayLabel.setText("D");
 
 	sustainSelect.setRange(0, 100);
 	sustainSelect.setValue(100);
+    sustainLabel.setText("S");
 
 	releaseSelect.setRange(0, 100);
+    releaseLabel.setText("R");
+
+    vibratoLabel.setText("Vibrato");
 
 	vibDepthSelect.setRange(0, 100);
+    vibDepthLabel.setText("Depth");
 
 	vibPeriodSelect.setRange(1, 100);
+    vibPeriodLabel.setText("Period");
 
 	levelSelect.setRange(0, 100);
 
 	fmDepthSelect.setRange(0, 100);
 
-	QHBoxLayout *layout = new QHBoxLayout();
-	QHBoxLayout *envLayout = new QHBoxLayout();
+	envLayout.addWidget(&envelopeLabel, 0, 0, 1, -1);
+	envLayout.addWidget(&attackSelect, 1, 0);
+	envLayout.addWidget(&attackLabel, 2, 0, 1, 1, Qt::AlignHCenter);
+	envLayout.addWidget(&decaySelect, 1, 1);
+	envLayout.addWidget(&decayLabel, 2, 1, 1, 1, Qt::AlignHCenter);
+	envLayout.addWidget(&sustainSelect, 1, 2);
+	envLayout.addWidget(&sustainLabel, 2, 2, 1, 1, Qt::AlignHCenter);
+	envLayout.addWidget(&releaseSelect, 1, 3);
+	envLayout.addWidget(&releaseLabel, 2, 3, 1, 1, Qt::AlignHCenter);
 
-	envLayout->addWidget(&attackSelect);
-	envLayout->addWidget(&decaySelect);
-	envLayout->addWidget(&sustainSelect);
-	envLayout->addWidget(&releaseSelect);
-	layout->addWidget(&waveformSelect);
-	layout->addWidget(&transposeSelect);
-	layout->addWidget(&envelope);
-	layout->addWidget(&vibDepthSelect);
-	layout->addWidget(&vibPeriodSelect);
-	layout->addWidget(&levelSelect);
-	layout->addWidget(&fmDepthSelect);
-	mainArea.setLayout(layout);
-	envelope.setLayout(envLayout);
+	vibLayout.addWidget(&vibratoLabel, 0, 0, 1, -1);
+	vibLayout.addWidget(&vibDepthSelect, 1, 0);
+	vibLayout.addWidget(&vibDepthLabel, 2, 0, 1, 1, Qt::AlignHCenter);
+	vibLayout.addWidget(&vibPeriodSelect, 1, 1);
+	vibLayout.addWidget(&vibPeriodLabel, 2, 1, 1, 1, Qt::AlignHCenter);
+
+	layout.addWidget(&waveformSelect);
+	layout.addWidget(&transposeSelect);
+	layout.addWidget(&envelope);
+	layout.addWidget(&vibratoSection);
+	layout.addWidget(&levelSelect);
+	layout.addWidget(&fmDepthSelect);
+
+	mainArea.setLayout(&layout);
+	envelope.setLayout(&envLayout);
+	vibratoSection.setLayout(&vibLayout);
 	setCentralWidget(&mainArea);
 
 	show();
@@ -108,7 +150,6 @@ void Synthesizer::prepareGui() {
 
 	QObject::connect(&fmDepthSelect, SIGNAL(valueChanged(int)), this, SLOT(setFmDepth(int)));
 	QObject::connect(&fmDepthSelect, SIGNAL(valueChanged(int)), this, SLOT(setFocus()));
-
 }
 
 void Synthesizer::fillFrame(char *buffer, int i, int sample) {
@@ -189,9 +230,15 @@ void Synthesizer::setVibPeriod(int value) {
 
 void Synthesizer::configureSoundDevice() {
 	unsigned int val;
-	int dir, rc;
+	int rc;
 	snd_pcm_hw_params_t *params;
+	snd_pcm_sw_params_t *sw_params;
 	snd_pcm_uframes_t hw_buffer;
+
+	frames = 32;
+	hw_buffer = frames*16;
+	val = SAMPLE_RATE;
+
 	rc = snd_pcm_open(&handle, "default", SND_PCM_STREAM_PLAYBACK, 0);
 	if (rc < 0) {
 		fprintf(stderr, 
@@ -204,20 +251,39 @@ void Synthesizer::configureSoundDevice() {
 	snd_pcm_hw_params_set_access(handle, params, SND_PCM_ACCESS_RW_INTERLEAVED);
 	snd_pcm_hw_params_set_format(handle, params, SND_PCM_FORMAT_S16_LE);
 	snd_pcm_hw_params_set_channels(handle, params, 2);
-	val = SAMPLE_RATE;
-	snd_pcm_hw_params_set_rate_near(handle, params, &val, &dir);
-	frames = 32;
-	hw_buffer = frames * 32;
-	snd_pcm_hw_params_set_buffer_size_max(handle, params, &hw_buffer);
-	snd_pcm_hw_params_set_period_size_near(handle, params, &frames, &dir);
-	rc = snd_pcm_hw_params(handle, params);
+	snd_pcm_hw_params_set_rate_near(handle, params, &val, 0);
+	rc = snd_pcm_hw_params_set_buffer_size_near(handle, params, &hw_buffer);
+    if (rc < 0) {
+        fprintf(stderr, "unable to set buffer: %s\n", snd_strerror(rc));
+        exit(1);
+	}
+    hw_buffer /= 2;
+    rc = snd_pcm_hw_params_set_period_size_near(handle, params, &frames, 0);
+    if (rc < 0) {
+        fprintf(stderr, "unable to set period_size: %s\n", snd_strerror(rc));
+        exit(1);
+	}
+    rc = snd_pcm_hw_params(handle, params);
+    if (rc < 0) {
+        fprintf(stderr, "unable to set hw parameters: %s\n", snd_strerror(rc));
+        exit(1);
+	}
+	snd_pcm_sw_params_alloca(&sw_params);
+    rc = snd_pcm_sw_params_set_start_threshold(handle, sw_params, hw_buffer-frames);
 	if (rc < 0) {
-		fprintf(stderr, 
-				"unable to set hw parameters: %s\n",
-				snd_strerror(rc));
+		fprintf(stderr, "unable to set start threshold: %s\n", snd_strerror(rc));
 		exit(1);
 	}
-	snd_pcm_hw_params_get_period_size(params, &frames, &dir);
+    rc = snd_pcm_sw_params_set_avail_min(handle, sw_params, 4);
+	if (rc < 0) {
+		fprintf(stderr, "unable to set avail min: %s\n", snd_strerror(rc));
+		exit(1);
+	}
+	rc = snd_pcm_sw_params(handle, sw_params);
+	if (rc < 0) {
+		fprintf(stderr, "unable to set sw parameters: %s\n", snd_strerror(rc));
+		exit(1);
+	}
 }
 
 void Synthesizer::initMaps() {
@@ -243,6 +309,6 @@ vector<Note*> Synthesizer::getWaveforms() {
 }
 
 Synthesizer::~Synthesizer() {
-	snd_pcm_drain(handle);
-	snd_pcm_close(handle);
+    snd_pcm_drain(handle);
+    snd_pcm_close(handle);
 }

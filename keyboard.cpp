@@ -203,7 +203,7 @@ void Keyboard::setRelease(double i) {
 }
 
 void Keyboard::setWaveform(int i) {
-	currentSound = new FM(waveforms[i]);
+	currentSound = waveforms[i];
 }
 
 double Keyboard::adsFactor(int samplesElapsed) {

@@ -16,8 +16,10 @@
 #include <QSpinBox>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <QGridLayout>
 #include <QSlider>
 #include <QString>
+#include <jack/jack.h>
 #include "keyboard.h"
 #include "sawtooth.h"
 #include "note.h"
@@ -72,19 +74,33 @@ class Synthesizer : public QMainWindow {
 		snd_pcm_t *handle;
 
 		QFrame mainArea;
+
 		QGroupBox envelope;
+        QGridLayout envLayout;
+		QLabel envelopeLabel;
 		QSlider attackSelect;
+		QLabel attackLabel;
 		QSlider decaySelect;
+		QLabel decayLabel;
 		QSlider sustainSelect;
+		QLabel sustainLabel;
 		QSlider releaseSelect;
+		QLabel releaseLabel;
+
+		QGroupBox vibratoSection;
+        QGridLayout vibLayout;
+		QLabel vibratoLabel;
 		QSlider vibDepthSelect;
+		QLabel vibDepthLabel;
 		QSlider vibPeriodSelect;
+		QLabel vibPeriodLabel;
+
 		QSlider levelSelect;
 		QSlider fmDepthSelect;
 		QComboBox waveformSelect;
 		QSpinBox transposeSelect;
 
-		//QHBoxLayout layout;
+	    QHBoxLayout layout;
 
 	protected:
 		void keyPressEvent(QKeyEvent *event);
