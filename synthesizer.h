@@ -8,6 +8,7 @@
 #include <QMainWindow>
 #include <QObject>
 #include <QGroupBox>
+#include <QCheckBox>
 #include <QKeyEvent>
 #include <QPushButton>
 #include <QComboBox>
@@ -27,6 +28,7 @@
 #include "vibrato.h"
 #include "looper.h"
 #include "chorus.h"
+#include "soundeffect.h"
 
 using namespace std;
 
@@ -55,9 +57,11 @@ class Synthesizer : public QMainWindow {
 		void setVibPeriod(int value);
 		void setLevel(int i);
 		void setFmDepth(int i);
+        void setFmEnabled(int state);
 	private:
 		void prepareGui();
 		void configureSoundDevice();
+		vector<SoundEffect*> soundEffects;
 		Looper looper;
 		Keyboard normalKeyboard;
 		Keyboard *keyboard;
@@ -97,6 +101,7 @@ class Synthesizer : public QMainWindow {
 
 		QSlider levelSelect;
 		QSlider fmDepthSelect;
+		QCheckBox fmEnabled;
 		QComboBox waveformSelect;
 		QSpinBox transposeSelect;
 

@@ -30,10 +30,12 @@ class Keyboard : public SoundProcessor {
 		void setWaveform(int i);
 		void setLevel(double i);
 		void setFmDepth(double i);
+        void setFmEnabled(bool fmEnabled);
 		vector<Note*> getWaveforms();
 	protected:
 		double adsrFactor(Note *note);
 		Note *currentSound;
+        double fmDepth;
 		map<enum note, double> freqs;
 		bool isNote(char c);
 		enum note getTransposition(enum note n, int transposeInKey);
@@ -49,9 +51,12 @@ class Keyboard : public SoundProcessor {
 		vector<Note*> notes;
 		vector<Note*> waveforms;
 		map<enum note, Note*> lastNoteFor;
+
 		int octave;
 		int transpose;
 		int transposeInKey;
+
+        bool fmEnabled;
 
 		double level;
 		double attackTime;

@@ -11,11 +11,12 @@ Keyboard::Keyboard() {
 	sustainLevel = 1;
 	releaseTime = 0;
 	level = 0.01; 
+    fmEnabled = false;
+    fmDepth = 0;
 	waveforms.push_back(new Sawtooth());
 	waveforms.push_back(new Triangle());
 	waveforms.push_back(new Square());
 	waveforms.push_back(new Sine());
-	//currentSound = new FM(waveforms[0]);
 	currentSound = waveforms[0];
 	initMaps();
 }
@@ -26,17 +27,23 @@ void Keyboard::initMaps() {
 }
 
 void Keyboard::setFmDepth(double i) {
-	((FM*)currentSound)->setDepth(i);
+    fmDepth = i;
 }
 
 void Keyboard::setLevel(double i) {
 	level = i;
 }
 
+void Keyboard::setFmEnabled(bool fmEnabled) {
+    this->fmEnabled = fmEnabled;
+}
+
 void Keyboard::playNote(enum note n) {
 	if(lastNoteFor.find(n) != lastNoteFor.end() && !lastNoteFor[n]->isReleased())
 		lastNoteFor[n]->release();
 	Note *note = currentSound->clone(freqs[getTransposition(n)]*pow(2.0, octave+((double)transpose)/12), n);
+    if(fmEnabled)
+        note = new FM(note, freqs[getTransposition(n)]*pow(2.0, octave+((double)transpose)/12), &fmDepth);
 	lastNoteFor[n] = note;
 	notes.push_back(note);
 }

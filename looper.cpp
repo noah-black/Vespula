@@ -66,6 +66,8 @@ void Looper::releaseNote(enum note n) {
 
 void Looper::playSavedNote(struct savedNote *sNote) {
 	Note *note = currentSound->clone(freqs[getTransposition(sNote->note)]*pow(2.0, sNote->octave + ((double)transpose)/12), sNote->note);
+    if(fmEnabled)
+        note = new FM(note, freqs[getTransposition(sNote->note)]*pow(2.0, sNote->octave + ((double)transpose)/12), &fmDepth);
 	note->setReleaseSample(sNote->duration);
 	notes.push_back(note);
 }

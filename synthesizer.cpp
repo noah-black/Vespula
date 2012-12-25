@@ -3,9 +3,9 @@
 Synthesizer::Synthesizer() : looper(2),
  normalKeyboard(),
  keyboard(&looper),
- vibrato(keyboard, 0.1, 0),
+ vibrato(&looper, 0.1, 0),
  chorus(&vibrato, 1, 100),
- lpf(&chorus),
+ lpf(&vibrato),
  mainArea(this),
  envelope(&mainArea),
  envelopeLabel(&envelope),
@@ -23,11 +23,12 @@ Synthesizer::Synthesizer() : looper(2),
  vibDepthLabel(&vibratoSection),
  vibPeriodSelect(&vibratoSection),
  vibPeriodLabel(&vibratoSection),
+ fmEnabled(&mainArea),
  waveformSelect(&mainArea),
  transposeSelect(&mainArea) {
 	initMaps();
 	state = NOT_RUNNING;
-	main = &lpf;
+	main = &vibrato;
 	configureSoundDevice();
 	prepareGui();
 }
@@ -41,6 +42,9 @@ void Synthesizer::start() {
 	while(state == RUNNING) {
 		for (i = 0; i < frames; i++) {
 			sample = (main->getSample()*CEILING);
+	        for(vector<SoundEffect*>::iterator it = soundEffects.begin(); it != soundEffects.end(); ++it) {
+			    sample = (*it)->getSample(sample);
+            }
 			fillFrame(buffer, i, sample);
 		}
 		rc = snd_pcm_writei(handle, buffer, frames);
@@ -84,9 +88,11 @@ void Synthesizer::prepareGui() {
     vibDepthLabel.setText("Depth");
 
 	vibPeriodSelect.setRange(1, 100);
+	vibPeriodSelect.setValue(10);
     vibPeriodLabel.setText("Period");
 
 	levelSelect.setRange(0, 100);
+	levelSelect.setValue(10);
 
 	fmDepthSelect.setRange(0, 100);
 
@@ -112,6 +118,7 @@ void Synthesizer::prepareGui() {
 	layout.addWidget(&vibratoSection);
 	layout.addWidget(&levelSelect);
 	layout.addWidget(&fmDepthSelect);
+	layout.addWidget(&fmEnabled);
 
 	mainArea.setLayout(&layout);
 	envelope.setLayout(&envLayout);
@@ -150,6 +157,9 @@ void Synthesizer::prepareGui() {
 
 	QObject::connect(&fmDepthSelect, SIGNAL(valueChanged(int)), this, SLOT(setFmDepth(int)));
 	QObject::connect(&fmDepthSelect, SIGNAL(valueChanged(int)), this, SLOT(setFocus()));
+
+	QObject::connect(&fmEnabled, SIGNAL(stateChanged(int)), this, SLOT(setFmEnabled(int)));
+	QObject::connect(&fmEnabled, SIGNAL(stateChanged(int)), this, SLOT(setFocus()));
 }
 
 void Synthesizer::fillFrame(char *buffer, int i, int sample) {
@@ -220,6 +230,10 @@ void Synthesizer::setFmDepth(int i) {
 	keyboard->setFmDepth(((double)i)*100);
 }
 
+void Synthesizer::setFmEnabled(int state) {
+	keyboard->setFmEnabled(state == Qt::Checked);
+}
+
 void Synthesizer::setVibDepth(int value) {
 	vibrato.setDepth(value*100);
 }
@@ -236,7 +250,7 @@ void Synthesizer::configureSoundDevice() {
 	snd_pcm_uframes_t hw_buffer;
 
 	frames = 32;
-	hw_buffer = frames*16;
+	hw_buffer = frames*32;
 	val = SAMPLE_RATE;
 
 	rc = snd_pcm_open(&handle, "default", SND_PCM_STREAM_PLAYBACK, 0);
