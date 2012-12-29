@@ -1,7 +1,7 @@
 #include "fm.h"
-#include <stdio.h>
+#include<stdio.h>
 
-FM::FM(Note *input, double freq, double *depth) : Note(freq, input->getNote()) {
+FM::FM(Note *input, double freq, double *depth) : Note(freq, input->getNote()), envelope(1, 1, 0.5, 1) {
 	this->input = input;
 	this->freq = freq;
 	this->depth = depth;
@@ -13,10 +13,11 @@ FM::~FM() {
 }
 
 double FM::getMySample() {
-	double in, out;
+	double in, out, adsrFactor;
 	in = input->getSample();
 	out = sin(2*PI*(carrierPhase/period));
-	carrierPhase = fmod((carrierPhase+1+(((*depth)*in)/freq)), period);
+    adsrFactor = envelope.getFactor();
+	carrierPhase = fmod((carrierPhase+1+(((*depth+(adsrFactor*10000))*in)/freq)), period);
 	return out;
 }
 
@@ -34,3 +35,7 @@ void FM::setFreq(double freq) {
 	input->setFreq(freq);
 }
 
+void FM::release(){
+    Note::release();
+    envelope.setReleased();
+}

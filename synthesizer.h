@@ -4,7 +4,6 @@
 #include <math.h>
 #include <vector>
 #include <map>
-#include <alsa/asoundlib.h>
 #include <QMainWindow>
 #include <QObject>
 #include <QGroupBox>
@@ -29,6 +28,10 @@
 #include "looper.h"
 #include "chorus.h"
 #include "soundeffect.h"
+#include "envelopebox.h"
+#include "vibratobox.h"
+#include "fmbox.h"
+#include "soundmanager.h"
 
 using namespace std;
 
@@ -42,76 +45,49 @@ class Synthesizer : public QMainWindow {
 	Q_OBJECT
 	public:
 		Synthesizer();
-		~Synthesizer();
-		void start();
 		vector<Note*> getWaveforms();
+        void start();
+        Keyboard *getCurrentKeyboard();
 	public slots:
 		void done();
 		void changeWaveform(int value);
 		void setTranspose(int value);
-		void setAttack(int value);
-		void setDecay(int value);
-		void setSustain(int value);
-		void setRelease(int value);
-		void setVibDepth(int value);
-		void setVibPeriod(int value);
 		void setLevel(int i);
-		void setFmDepth(int i);
-        void setFmEnabled(int state);
 	private:
 		void prepareGui();
-		void configureSoundDevice();
 		vector<SoundEffect*> soundEffects;
 		Looper looper;
 		Keyboard normalKeyboard;
 		Keyboard *keyboard;
 		SoundProcessor *main;
+        SoundManager soundManager;
 		Vibrato vibrato;
 		Chorus chorus;
 		LPF lpf;
 		void initMaps();
-		void fillFrame(char *buffer, int i, int sample);
-		enum program_state state;
 		map<int, enum note> keyMap;
-
-		snd_pcm_uframes_t frames;
-		snd_pcm_t *handle;
+        enum program_state state;
 
 		QFrame mainArea;
 
-		QGroupBox envelope;
-        QGridLayout envLayout;
-		QLabel envelopeLabel;
-		QSlider attackSelect;
-		QLabel attackLabel;
-		QSlider decaySelect;
-		QLabel decayLabel;
-		QSlider sustainSelect;
-		QLabel sustainLabel;
-		QSlider releaseSelect;
-		QLabel releaseLabel;
+		EnvelopeBox envelopeBox;
+        
+        VibratoBox vibratoBox;
 
-		QGroupBox vibratoSection;
-        QGridLayout vibLayout;
-		QLabel vibratoLabel;
-		QSlider vibDepthSelect;
-		QLabel vibDepthLabel;
-		QSlider vibPeriodSelect;
-		QLabel vibPeriodLabel;
+        FmBox fmBox;
 
-		QSlider levelSelect;
-		QSlider fmDepthSelect;
-		QCheckBox fmEnabled;
+        QLabel waveformSelectLabel;
 		QComboBox waveformSelect;
+        QLabel transposeSelectLabel;
 		QSpinBox transposeSelect;
+        QLabel levelSelectLabel;
+		QSlider levelSelect;
 
-	    QHBoxLayout layout;
+	    QGridLayout layout;
 
 	protected:
 		void keyPressEvent(QKeyEvent *event);
 		void keyReleaseEvent(QKeyEvent *event);
-	
-
 };
 
 #endif

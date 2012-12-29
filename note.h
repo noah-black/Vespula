@@ -14,7 +14,7 @@ enum note_state {
 class Note : public SoundProcessor {
 	public:
 		Note(double freq = 440, enum note baseNote = n1);
-		void release();
+		virtual void release();
 		bool isReleased();
 		int getSamplesElapsed();
 		int getReleaseSample();
