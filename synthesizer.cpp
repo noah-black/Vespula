@@ -1,21 +1,25 @@
 #include "synthesizer.h"
 
-Synthesizer::Synthesizer() : looper(2),
-    normalKeyboard(),
+Synthesizer::Synthesizer() : 
+    envelope(0, 0, 1, 0),
+    noteFactory(&envelope),
+    looper(&noteFactory, 2),
+    normalKeyboard(&noteFactory),
     keyboard(&normalKeyboard),
     vibrato(&normalKeyboard, 0.1, 0),
     chorus(&vibrato, 1, 100),
     lpf(&vibrato),
     mainArea(this),
-    envelopeBox(&keyboard, &mainArea),
+    envelopeBox(&envelope, &mainArea),
     vibratoBox(&vibrato, &mainArea),
-    fmBox(&keyboard, &mainArea),
+    fmBox(&noteFactory, &mainArea),
     waveformSelectLabel(&mainArea),
     waveformSelect(&mainArea),
     transposeSelectLabel(&mainArea),
     transposeSelect(&mainArea),
     levelSelectLabel(&mainArea),
     levelSelect(&mainArea) {
+        level = 0.1;
         initMaps();
         state = NOT_RUNNING;
         main = &vibrato;
@@ -26,7 +30,7 @@ void Synthesizer::start() {
     int sample;
     state = RUNNING;
     while(state == RUNNING) {
-        sample = (main->getSample()*CEILING);
+        sample = (main->getSample()*CEILING) * level;
         for(vector<SoundEffect*>::iterator it = soundEffects.begin(); it != soundEffects.end(); ++it) {
             sample = (*it)->getSample(sample);
         }
@@ -35,9 +39,9 @@ void Synthesizer::start() {
 }
 
 void Synthesizer::prepareGui() {
-    vector<Note*> waveforms = getWaveforms();
-    for(vector<Note*>::iterator it = waveforms.begin(); it != waveforms.end(); ++it)
-        waveformSelect.addItem(QString::fromStdString((*it)->getName()));
+    waveforms = getWaveforms();
+    for(vector<string>::iterator it = waveforms->begin(); it != waveforms->end(); ++it)
+        waveformSelect.addItem(QString::fromStdString((*it)));
 
     waveformSelectLabel.setText("Waveform: ");
 
@@ -106,7 +110,7 @@ void Synthesizer::done() {
 }
 
 void Synthesizer::changeWaveform(int i) {
-    keyboard->setWaveform(i);
+    noteFactory.setWaveform((*waveforms)[i]);
 }
 
 void Synthesizer::setTranspose(int i) {
@@ -114,7 +118,7 @@ void Synthesizer::setTranspose(int i) {
 }
 
 void Synthesizer::setLevel(int i) {
-    keyboard->setLevel(((double)i)/1000);
+    level = ((double)i)/100;
 }
 
 void Synthesizer::initMaps() {
@@ -135,6 +139,6 @@ void Synthesizer::initMaps() {
     keyMap[Qt::Key_L] = n9;
 }
 
-vector<Note*> Synthesizer::getWaveforms() {
-    return keyboard->getWaveforms();
+vector<string> *Synthesizer::getWaveforms() {
+    return noteFactory.getWaveforms();
 }

@@ -2,7 +2,11 @@
 #define NOTE_H
 
 #include "soundprocessor.h"
+#include "envelope.h"
+#include "oscillator.h"
+#include "envelopeconnection.h"
 #include <string>
+#include <vector>
 
 using namespace std;
 
@@ -13,7 +17,8 @@ enum note_state {
 
 class Note : public SoundProcessor {
 	public:
-		Note(double freq = 440, enum note baseNote = n1);
+		Note(Oscillator *oscillator, Envelope *envelope, double freq = 440, enum note baseNote = n1);
+        ~Note();
 		virtual void release();
 		bool isReleased();
 		int getSamplesElapsed();
@@ -21,23 +26,22 @@ class Note : public SoundProcessor {
 		virtual void setFreq(double freq);
 		void setReleaseSample(int);
 		void incrementLevel(double amount);
-		bool isDead(double);
+		bool isDead();
 		double getFreq();
 		enum note getNote();
 		void setNote(enum note);
 		double getSample();
-
-		virtual double getMySample() = 0;
-		virtual Note *clone(double freq, enum note) = 0;
-		virtual string getName() = 0;
+        void addEnvelopeConnection(EnvelopeConnection *envelopeConnection);
 	protected:
+        vector<EnvelopeConnection*> envelopeConnections;
 		void advance();
-		double phase();
 		enum note baseNote;
 		enum note_state state;
 		double period;
 		int samplesElapsed;
 		int releaseSample;
 		double freq;
+        Oscillator *oscillator;
+        Envelope *envelope;
 };
 #endif

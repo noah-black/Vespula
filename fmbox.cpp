@@ -1,8 +1,8 @@
 #include "fmbox.h"
 
-FmBox::FmBox(Keyboard **keyboard, QWidget *parent) : 
+FmBox::FmBox(NoteFactory *noteFactory, QWidget *parent) : 
     QGroupBox(parent),
-    keyboard(keyboard),
+    noteFactory(noteFactory),
     fmLabel(this),
     fmDepthSelect(this),
     fmEnabled(this)
@@ -25,9 +25,9 @@ FmBox::FmBox(Keyboard **keyboard, QWidget *parent) :
 }
 
 void FmBox::setFmDepth(int i) {
-    (*keyboard)->setFmDepth(((double)i)*100);
+    noteFactory->setFmDepth(((double)i)*100);
 }
 
 void FmBox::setFmEnabled(int state) {
-    (*keyboard)->setFmEnabled(state == Qt::Checked);
+    noteFactory->setFmEnabled(state == Qt::Checked);
 }

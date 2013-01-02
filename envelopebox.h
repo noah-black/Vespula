@@ -8,21 +8,21 @@
 #include <QGridLayout>
 #include <QObject>
 #include <string>
-#include "keyboard.h"
+#include "envelope.h"
 
 using namespace std;
 
 class EnvelopeBox : public QGroupBox {
     Q_OBJECT
 	public:
-        EnvelopeBox(Keyboard **keyboard, QWidget *parent);
+        EnvelopeBox(Envelope *envelope, QWidget *parent);
     public slots:
 		void setAttack(int value);
 		void setDecay(int value);
 		void setSustain(int value);
 		void setRelease(int value);
 	private:
-        Keyboard **keyboard;
+        Envelope *envelope;
         QGridLayout envLayout;
 		QLabel envelopeLabel;
 		QSlider attackSelect;

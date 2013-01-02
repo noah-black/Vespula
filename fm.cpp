@@ -1,41 +1,24 @@
 #include "fm.h"
-#include<stdio.h>
+#include <stdio.h>
 
-FM::FM(Note *input, double freq, double *depth) : Note(freq, input->getNote()), envelope(1, 1, 0.5, 1) {
-	this->input = input;
-	this->freq = freq;
+FM::FM(waveformType *waveform, double freq, double *depth) : Oscillator(waveform, freq) {
 	this->depth = depth;
 	carrierPhase = 0;
+    envelopeModifier = 0;
 }
 
-FM::~FM() {
-	delete input;
-}
-
-double FM::getMySample() {
-	double in, out, adsrFactor;
-	in = input->getSample();
+double FM::getSample() {
+	double in, out, freq, currentDepth;
+    currentDepth = *depth + envelopeModifier;
+    waveformType currentWaveform = *waveform;
+    freq = SAMPLE_RATE/period;
+	in = currentWaveform(phase, period);
 	out = sin(2*PI*(carrierPhase/period));
-    adsrFactor = envelope.getFactor();
-	carrierPhase = fmod((carrierPhase+1+(((*depth+(adsrFactor*10000))*in)/freq)), period);
+	carrierPhase = fmod((carrierPhase+1+(((currentDepth)*in)/freq)), period);
+    advance();
 	return out;
 }
 
-string FM::getName() {
-	return input->getName();
-}
-
-
-Note *FM::clone(double freq, enum note n) {
-	return new FM(input->clone(freq, n), freq, depth);
-}
-
-void FM::setFreq(double freq) {
-	Note::setFreq(freq);
-	input->setFreq(freq);
-}
-
-void FM::release(){
-    Note::release();
-    envelope.setReleased();
+void FM::envelopeUpdate(double amount) {
+    envelopeModifier = amount*10000;
 }

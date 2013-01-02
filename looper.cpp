@@ -1,12 +1,11 @@
 #include "looper.h"
-#include "sawtooth.h"
 #include <algorithm>
 #include <stdio.h>
 #include <math.h>
 #include <new>
 #include <iostream>
 
-Looper::Looper(double periodSeconds): savedNotes(periodSeconds*SAMPLE_RATE) {
+Looper::Looper(NoteFactory *noteFactory, double periodSeconds): Keyboard(noteFactory), savedNotes(periodSeconds*SAMPLE_RATE) {
 	period = periodSeconds*SAMPLE_RATE;
 	phase = 0;
 	pthread_mutex_init(&mutexsum, NULL);
@@ -31,11 +30,11 @@ double Looper::getNotesSample() {
 	vector<Note*>::iterator it;
 	it = notes.begin();
 	while(it != notes.end()) {
-		sample += (*it)->getSample() * adsrFactor(*it) * level;
+		sample += (*it)->getSample();
 		if(!((*it)->isReleased()) && ((*it)->getReleaseSample() == (*it)->getSamplesElapsed())) {
 			(*it)->release();
 		}
-		if((*it)->isDead(releaseTime)) {
+		if((*it)->isDead()) {
 			it = notes.erase(it);
 		}
 		else
@@ -65,9 +64,10 @@ void Looper::releaseNote(enum note n) {
 }
 
 void Looper::playSavedNote(struct savedNote *sNote) {
-	Note *note = currentSound->clone(freqs[getTransposition(sNote->note)]*pow(2.0, sNote->octave + ((double)transpose)/12), sNote->note);
-    if(fmEnabled)
-        note = new FM(note, freqs[getTransposition(sNote->note)]*pow(2.0, sNote->octave + ((double)transpose)/12), &fmDepth);
+    Note *note;
+    double freq;
+	freq = freqs[getTransposition(sNote->note)]*pow(2.0, sNote->octave + ((double)transpose)/12);
+    note = noteFactory->getNote(freq, sNote->note);
 	note->setReleaseSample(sNote->duration);
 	notes.push_back(note);
 }

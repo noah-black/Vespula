@@ -7,6 +7,9 @@
 
 #include <math.h>
 
+typedef double waveformPrecision;
+typedef double(*waveformType)(waveformPrecision, waveformPrecision);
+
 enum note {
 	n1,
 	s1,

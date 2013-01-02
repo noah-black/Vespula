@@ -21,7 +21,6 @@
 #include <QString>
 #include <jack/jack.h>
 #include "keyboard.h"
-#include "sawtooth.h"
 #include "note.h"
 #include "lpf.h"
 #include "vibrato.h"
@@ -32,6 +31,7 @@
 #include "vibratobox.h"
 #include "fmbox.h"
 #include "soundmanager.h"
+#include "notefactory.h"
 
 using namespace std;
 
@@ -45,7 +45,7 @@ class Synthesizer : public QMainWindow {
 	Q_OBJECT
 	public:
 		Synthesizer();
-		vector<Note*> getWaveforms();
+		vector<string> *getWaveforms();
         void start();
         Keyboard *getCurrentKeyboard();
 	public slots:
@@ -55,7 +55,10 @@ class Synthesizer : public QMainWindow {
 		void setLevel(int i);
 	private:
 		void prepareGui();
+		vector<string> *waveforms;
 		vector<SoundEffect*> soundEffects;
+        Envelope envelope;
+        NoteFactory noteFactory;
 		Looper looper;
 		Keyboard normalKeyboard;
 		Keyboard *keyboard;
@@ -84,6 +87,8 @@ class Synthesizer : public QMainWindow {
 		QSlider levelSelect;
 
 	    QGridLayout layout;
+
+        double level;
 
 	protected:
 		void keyPressEvent(QKeyEvent *event);

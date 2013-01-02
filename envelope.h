@@ -2,26 +2,25 @@
 #define ENVELOPE_H
 
 #include "soundeffect.h"
+#include "modulator.h"
 
 using namespace std;
 
 class Envelope {
 	public:
         Envelope(double attack, double decay, double sustain, double release);
-		void setAttack(int value);
-		void setDecay(int value);
-		void setSustain(int value);
-		void setRelease(int value);
-        double getFactor();
-        double adsFactor();
-        void setReleased();
+		void setAttack(double value);
+		void setDecay(double value);
+		void setSustain(double value);
+		void setRelease(double value);
+        double getFactor(int samplesElapsed);
+        double getFactor(int samplesElapsed, int releaseSample);
+        bool isDead(int samplesElapsed, int releaseSample);
     private:
+        double adsFactor(int samplesElapsed);
         double attack;
         double decay;
         double sustain;
         double release;
-        int samplesElapsed;
-        int releaseSample;
-        bool isReleased;
 };
 #endif

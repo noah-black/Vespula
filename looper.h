@@ -19,7 +19,7 @@ struct savedNote {
 
 class Looper : public Keyboard {
 	public:
-		Looper(double periodSeconds);
+		Looper(NoteFactory *noteFactory, double periodSeconds);
 		virtual double getSample();
 		virtual void releaseNote(enum note n);
 	private:

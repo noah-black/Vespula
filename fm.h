@@ -1,19 +1,19 @@
-#include "note.h"
-#include "envelope.h"
+#ifndef FM_H
+#define FM_H
 
-class FM : public Note {
+#include "oscillator.h"
+#include "envelopable.h"
+
+class FM : public Oscillator, public Envelopable {
 	public:
-		FM(Note *input, double freq, double *depth);
-		~FM();
-		double getMySample();
+		FM(waveformType* waveform, double freq, double *depth);
+		virtual double getSample();
 		void setDepth(double i);
-		void setFreq(double freq);
-        virtual void release();
-		Note *clone(double freq, enum note);
-		string getName();
+        void envelopeUpdate(double amount);
 	private:
-		Note *input;
 		double *depth;
 		double carrierPhase;
-        Envelope envelope;
+        double envelopeModifier;
 };
+
+#endif

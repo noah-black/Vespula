@@ -5,40 +5,52 @@ Envelope::Envelope(double attack, double decay, double sustain, double release) 
     this->decay = decay;
     this->sustain = sustain; 
     this->release = release;
-    samplesElapsed = 0;
-    releaseSample = -1;
-    isReleased = false;
 }
 
-double Envelope::adsFactor() {
+double Envelope::adsFactor(int samplesElapsed) {
 	if (samplesElapsed < (attack * SAMPLE_RATE))
-		return (samplesElapsed) / (attack * SAMPLE_RATE);
+		return ((double)samplesElapsed) / (attack * SAMPLE_RATE);
 	if (samplesElapsed < ((decay+attack) * SAMPLE_RATE))
-		return 1 - (((samplesElapsed-(attack*SAMPLE_RATE)) / (decay * SAMPLE_RATE)) * (1-sustain));
+		return 1 - (((double)(samplesElapsed-(attack*SAMPLE_RATE)) / (decay * SAMPLE_RATE)) * (1-sustain));
 	return sustain;
 }
 
-double Envelope::getFactor() {
-	double factor, releaseLevel;
-	if(isReleased) {
-		if((samplesElapsed - releaseSample) >= (release*SAMPLE_RATE))
-			return 0;
-		releaseLevel = adsFactor();
-		factor = releaseLevel * (1 - (samplesElapsed - releaseSample) / (release * SAMPLE_RATE));
-		if (factor < 0)
-			factor = 0;
-		if (factor > 1)
-			factor = 1;
-	}
-    else
-	    factor = adsFactor();
-    samplesElapsed++;
+double Envelope::getFactor(int samplesElapsed) {
+	double factor;
+	factor = adsFactor(samplesElapsed);
 	return factor;
 }
 
-void Envelope::setReleased() {
-	if (isReleased) 
-		return;
-    isReleased = true;
-    releaseSample = samplesElapsed;
+double Envelope::getFactor(int samplesElapsed, int releaseSample) {
+    double factor, releaseLevel;
+    if((samplesElapsed - releaseSample) >= (release*SAMPLE_RATE))
+        return 0;
+    releaseLevel = adsFactor(samplesElapsed);
+    factor = releaseLevel * (1 - (samplesElapsed - releaseSample) / (release * SAMPLE_RATE));
+    if (factor < 0)
+        factor = 0;
+    if (factor > 1)
+        factor = 1;
+    return factor;
 }
+
+void Envelope::setAttack(double value) {
+    attack = value;
+}
+
+void Envelope::setDecay(double value) {
+    decay = value;
+}
+
+void Envelope::setSustain(double value) {
+    sustain = value;
+}
+
+void Envelope::setRelease(double value) {
+    release = value;
+}
+
+bool Envelope::isDead(int samplesElapsed, int releaseSample) {
+	return ((samplesElapsed - releaseSample) > (release * SAMPLE_RATE));
+}
+

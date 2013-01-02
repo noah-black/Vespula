@@ -9,7 +9,7 @@
 #include <QCheckBox>
 #include <QObject>
 #include <string>
-#include "keyboard.h"
+#include "notefactory.h"
 
 using namespace std;
 
@@ -17,12 +17,12 @@ class FmBox : public QGroupBox
 {
     Q_OBJECT
 	public:
-        FmBox(Keyboard **keyboard, QWidget *parent);
+        FmBox(NoteFactory *noteFactory, QWidget *parent);
     public slots:
 		void setFmDepth(int i);
         void setFmEnabled(int state);
 	private:
-        Keyboard **keyboard;
+        NoteFactory *noteFactory;
 		QLabel fmLabel;
         QGridLayout fmLayout;
 		QSlider fmDepthSelect;

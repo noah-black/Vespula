@@ -1,8 +1,8 @@
 #include "envelopebox.h"
 
-EnvelopeBox::EnvelopeBox(Keyboard **keyboard, QWidget *parent) : 
+EnvelopeBox::EnvelopeBox(Envelope *envelope, QWidget *parent) : 
  QGroupBox(parent),
- keyboard(keyboard),
+ envelope(envelope),
  envelopeLabel(this),
  attackSelect(this),
  attackLabel(this),
@@ -52,14 +52,14 @@ EnvelopeBox::EnvelopeBox(Keyboard **keyboard, QWidget *parent) :
 	QObject::connect(&releaseSelect, SIGNAL(valueChanged(int)), this, SLOT(setFocus()));
 }
 void EnvelopeBox::setAttack(int value) {
-	(*keyboard)->setAttack(((double)value)/50);
+	envelope->setAttack(((double)value)/50);
 }
 void EnvelopeBox::setDecay(int value) {
-	(*keyboard)->setDecay(((double)value)/50);
+	envelope->setDecay(((double)value)/50);
 }
 void EnvelopeBox::setSustain(int value) {
-	(*keyboard)->setSustain(((double)value)/100);
+	envelope->setSustain(((double)value)/100);
 }
 void EnvelopeBox::setRelease(int value) {
-	(*keyboard)->setRelease(((double)value)/50);
+	envelope->setRelease(((double)value)/50);
 }
