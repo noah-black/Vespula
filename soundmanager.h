@@ -4,6 +4,7 @@
 #define SAMPLE_RATE 44100.0
 
 #include <alsa/asoundlib.h>
+#include "soundprocessor.h"
 
 using namespace std;
 

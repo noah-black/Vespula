@@ -12,7 +12,7 @@ double FM::getSample() {
     currentDepth = *depth + envelopeModifier;
     waveformType currentWaveform = *waveform;
     freq = SAMPLE_RATE/period;
-	in = currentWaveform(phase, period);
+	in = calculateSample();
 	out = sin(2*PI*(carrierPhase/period));
 	carrierPhase = fmod((carrierPhase+1+(((currentDepth)*in)/freq)), period);
     advance();

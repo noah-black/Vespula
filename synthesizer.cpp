@@ -19,7 +19,7 @@ Synthesizer::Synthesizer() :
     transposeSelect(&mainArea),
     levelSelectLabel(&mainArea),
     levelSelect(&mainArea) {
-        level = 0.1;
+        level = 0.01;
         initMaps();
         state = NOT_RUNNING;
         main = &vibrato;
@@ -31,9 +31,9 @@ void Synthesizer::start() {
     state = RUNNING;
     while(state == RUNNING) {
         sample = (main->getSample()*CEILING) * level;
-        for(vector<SoundEffect*>::iterator it = soundEffects.begin(); it != soundEffects.end(); ++it) {
-            sample = (*it)->getSample(sample);
-        }
+        //for(vector<SoundEffect*>::iterator it = soundEffects.begin(); it != soundEffects.end(); ++it) {
+        //    sample = (*it)->getSample(sample);
+        //}
         soundManager.writeSample(sample);
     }
 }
@@ -118,7 +118,7 @@ void Synthesizer::setTranspose(int i) {
 }
 
 void Synthesizer::setLevel(int i) {
-    level = ((double)i)/100;
+    level = ((double)i)/1000;
 }
 
 void Synthesizer::initMaps() {

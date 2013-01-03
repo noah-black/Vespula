@@ -9,6 +9,7 @@ noteFactory(noteFactory)
 	transpose = 0;
 	transposeInKey = 0;
 	initMaps();
+    pthread_mutex_init(&noteMutex, NULL);
 }
 
 void Keyboard::initMaps() {
@@ -23,7 +24,9 @@ void Keyboard::playNote(enum note n) {
 		lastNoteFor[n]->release();
     note = noteFactory->getNote(freq, n);
 	lastNoteFor[n] = note;
+    pthread_mutex_lock(&noteMutex);
 	notes.push_back(note);
+    pthread_mutex_unlock(&noteMutex);
 }
 
 void Keyboard::releaseNote(enum note n) {
@@ -137,6 +140,7 @@ int Keyboard::getInterval(enum note n) {
 double Keyboard::getSample() {
 	double sample = 0;
 	vector<Note*>::iterator it;
+    pthread_mutex_lock(&noteMutex);
 	it = notes.begin();
 	while(it != notes.end()) {
 		sample += (*it)->getSample();
@@ -145,6 +149,7 @@ double Keyboard::getSample() {
 		else
 			it++;
 	}
+    pthread_mutex_unlock(&noteMutex);
 	return sample;
 }
 

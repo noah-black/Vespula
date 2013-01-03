@@ -6,6 +6,7 @@
 #include <string>
 #include <math.h>
 #include <stdio.h>
+#include <pthread.h>
 #include "fm.h"
 #include "soundprocessor.h"
 #include "oscillators.h"
@@ -34,6 +35,7 @@ class Keyboard : public SoundProcessor {
 		bool isSharp(enum note n);
 		enum note getNatural(int n);
 		enum note getSharp(int n);
+        pthread_mutex_t noteMutex;
 		int getInterval(enum note);
         NoteFactory *noteFactory;
 

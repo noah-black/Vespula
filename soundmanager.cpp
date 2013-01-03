@@ -9,6 +9,8 @@ SoundManager::SoundManager() {
 void SoundManager::writeSample(int sample) {
     counter++;
 	int rc = frames;
+    sample = sample > CEILING ? CEILING : sample;
+    sample = sample < -CEILING ? -CEILING : sample;
 	buffer[bufferIndex * 4] = sample & 255;
 	buffer[(bufferIndex * 4) + 2] = sample & 255;
 	buffer[(bufferIndex * 4) + 1] = sample >> 8;
@@ -18,6 +20,7 @@ void SoundManager::writeSample(int sample) {
         rc = snd_pcm_writei(handle, buffer, frames);
 		while(rc == -EPIPE) {
             rc = snd_pcm_recover(handle, rc, 1);
+            printf("underrun\n");
             if(rc != 0) {
 			    fprintf(stderr, "Could not recover from underrun!\n");
                 exit(1);
