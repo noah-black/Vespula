@@ -1,16 +1,16 @@
 #include "synthesizer.h"
 
 Synthesizer::Synthesizer() : 
-    envelope(0, 0, 1, 0),
-    noteFactory(&envelope),
+    noteFactory(),
     looper(&noteFactory, 2),
     normalKeyboard(&noteFactory),
-    keyboard(&normalKeyboard),
-    vibrato(&normalKeyboard, 0.1, 0),
-    chorus(&vibrato, 1, 100),
+    keyboard(&looper),
+    vibrato(keyboard, 0.1, 0),
+    chorus(&vibrato, 0.2, 1000),
     lpf(&vibrato),
     mainArea(this),
-    envelopeBox(&envelope, &mainArea),
+    envelopeBox(noteFactory.getEnvelope(0), &mainArea),
+    freeEnvelopeBox(noteFactory.getEnvelope(1), &mainArea),
     vibratoBox(&vibrato, &mainArea),
     fmBox(&noteFactory, &mainArea),
     waveformSelectLabel(&mainArea),
@@ -59,9 +59,10 @@ void Synthesizer::prepareGui() {
     layout.addWidget(&transposeSelect, 1, 1, 1, 1);
     layout.addWidget(&levelSelectLabel, 1, 2, 1, 1);
     layout.addWidget(&levelSelect, 0, 2, 1, 1);
-    layout.addWidget(&envelopeBox, 0, 3, -1, 1);
-    layout.addWidget(&vibratoBox, 0, 4, -1, 1);
-    layout.addWidget(&fmBox, 0, 5, -1, 1);
+    layout.addWidget(&envelopeBox, 0, 3, 2, 1);
+    layout.addWidget(&vibratoBox, 0, 4, 2, 1);
+    layout.addWidget(&fmBox, 0, 5, 2, 1);
+    layout.addWidget(&freeEnvelopeBox, 2, 0, 1, 1);
 
     mainArea.setLayout(&layout);
     setCentralWidget(&mainArea);

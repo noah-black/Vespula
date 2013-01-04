@@ -16,27 +16,29 @@ using namespace std;
 
 class NoteFactory {
 	public:
-		NoteFactory(Envelope *envelope);
+		NoteFactory();
         Note *getNote(double freq, enum note n);
 		void setWaveform(string i);
 		void setLevel(double i);
 		void setFmDepth(double i);
         void setFmEnabled(bool fmEnabled);
-        void setFmModulatorEnabled(bool fmModulatorEnabled);
+        void setFmEnvelopeEnabled(bool fmEnvelopeEnabled);
+        void setFmEnvAmount(double i);
 		vector<string> *getWaveforms();
+        Envelope *getEnvelope(int i);
 	protected:
         double fmDepth;
+        double fmEnvAmount;
 		void initMaps();
 
 		map<string, waveformType> waveforms;
 
         bool fmEnabled;
-        bool fmModulatorEnabled;
+        bool fmEnvelopeEnabled;
 
         waveformType currentSound;
 
-        Envelope *envelope;
-    
+        vector<Envelope*> envelopes; 
 };
 
 #endif

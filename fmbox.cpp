@@ -4,16 +4,29 @@ FmBox::FmBox(NoteFactory *noteFactory, QWidget *parent) :
     QGroupBox(parent),
     noteFactory(noteFactory),
     fmLabel(this),
+    fmDepthLabel(this),
     fmDepthSelect(this),
-    fmEnabled(this)
+    fmEnabled(this),
+    fmEnvelopeLabel(this),
+    fmEnvAmountSelect(this),
+    fmEnvelopeEnabled(this)
 {
     fmLabel.setText("FM");
+    fmDepthLabel.setText("Depth");
+    fmEnvelopeLabel.setText("Envelope");
 
     fmDepthSelect.setRange(0, 100);
+    fmEnvAmountSelect.setRange(0, 100);
 
-    fmLayout.addWidget(&fmLabel, 0, 0, 1, 1, Qt::AlignHCenter);
-    fmLayout.addWidget(&fmDepthSelect, 1, 0, 1, 1, Qt::AlignHCenter);
-    fmLayout.addWidget(&fmEnabled, 2, 0, 1, 1, Qt::AlignHCenter);
+    fmLayout.addWidget(&fmLabel, 0, 0, 1, -1, Qt::AlignHCenter);
+
+    fmLayout.addWidget(&fmDepthLabel, 1, 0, 1, 1, Qt::AlignHCenter);
+    fmLayout.addWidget(&fmDepthSelect, 2, 0, 1, 1, Qt::AlignHCenter);
+    fmLayout.addWidget(&fmEnabled, 3, 0, 1, 1, Qt::AlignHCenter);
+
+    fmLayout.addWidget(&fmEnvelopeLabel, 1, 1, 1, 1, Qt::AlignHCenter);
+    fmLayout.addWidget(&fmEnvAmountSelect, 2, 1, 1, 1, Qt::AlignHCenter);
+    fmLayout.addWidget(&fmEnvelopeEnabled, 3, 1, 1, 1, Qt::AlignHCenter);
 
     this->setLayout(&fmLayout);
 
@@ -22,6 +35,13 @@ FmBox::FmBox(NoteFactory *noteFactory, QWidget *parent) :
 
     QObject::connect(&fmEnabled, SIGNAL(stateChanged(int)), this, SLOT(setFmEnabled(int)));
     QObject::connect(&fmEnabled, SIGNAL(stateChanged(int)), this, SLOT(setFocus()));
+
+    QObject::connect(&fmEnvAmountSelect, SIGNAL(valueChanged(int)), this, SLOT(setFmEnvAmount(int)));
+    QObject::connect(&fmEnvAmountSelect, SIGNAL(valueChanged(int)), this, SLOT(setFocus()));
+
+    QObject::connect(&fmEnvelopeEnabled, SIGNAL(stateChanged(int)), this, SLOT(setFmEnvelopeEnabled(int)));
+    QObject::connect(&fmEnvelopeEnabled, SIGNAL(stateChanged(int)), this, SLOT(setFocus()));
+
 }
 
 void FmBox::setFmDepth(int i) {
@@ -30,4 +50,12 @@ void FmBox::setFmDepth(int i) {
 
 void FmBox::setFmEnabled(int state) {
     noteFactory->setFmEnabled(state == Qt::Checked);
+}
+
+void FmBox::setFmEnvelopeEnabled(int state) {
+    noteFactory->setFmEnvelopeEnabled(state == Qt::Checked);
+}
+
+void FmBox::setFmEnvAmount(int i) {
+    noteFactory->setFmEnvAmount(((double)i)/100);
 }

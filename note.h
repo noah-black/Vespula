@@ -34,7 +34,7 @@ class Note : public SoundProcessor {
         void addEnvelopeConnection(EnvelopeConnection *envelopeConnection);
 	protected:
         vector<EnvelopeConnection*> envelopeConnections;
-		void advance();
+		virtual void advance();
 		enum note baseNote;
 		enum note_state state;
 		double period;

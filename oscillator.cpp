@@ -16,6 +16,7 @@ Oscillator::~Oscillator() {
 
 void Oscillator::setFreq(double freq) {
 	period = SAMPLE_RATE/freq;
+    uninitialized = true;
 }
 
 void Oscillator::advance() {

@@ -3,6 +3,10 @@
 
 #include "oscillator.h"
 #include "envelopable.h"
+#include "envelopeconnection.h"
+#include <vector>
+
+using namespace std;
 
 class FM : public Oscillator, public Envelopable {
 	public:

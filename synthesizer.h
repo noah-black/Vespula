@@ -5,8 +5,8 @@
 #include <vector>
 #include <map>
 #include <QMainWindow>
-#include <QObject>
-#include <QGroupBox>
+#include <QObject> 
+#include <QGroupBox> 
 #include <QCheckBox>
 #include <QKeyEvent>
 #include <QPushButton>
@@ -57,7 +57,6 @@ class Synthesizer : public QMainWindow {
 		void prepareGui();
 		vector<string> *waveforms;
 		vector<SoundEffect*> soundEffects;
-        Envelope envelope;
         NoteFactory noteFactory;
 		Looper looper;
 		Keyboard normalKeyboard;
@@ -74,6 +73,7 @@ class Synthesizer : public QMainWindow {
 		QFrame mainArea;
 
 		EnvelopeBox envelopeBox;
+		EnvelopeBox freeEnvelopeBox;
         
         VibratoBox vibratoBox;
 

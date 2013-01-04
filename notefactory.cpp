@@ -2,11 +2,14 @@
 
 using namespace std;
 
-NoteFactory::NoteFactory(Envelope *envelope):
-    envelope(envelope)
+NoteFactory::NoteFactory()
 {
+    envelopes.push_back(new Envelope(0, 0, 1, 0));
+    envelopes.push_back(new Envelope(0, 0, 1, 0));
     fmEnabled = false;
+    fmEnvelopeEnabled = false;
     fmDepth = 0;
+    fmEnvAmount = 0;
     currentSound = Oscillators::sawtooth;
     initMaps();
 }
@@ -15,12 +18,12 @@ Note *NoteFactory::getNote(double freq, enum note n) {
     Note *note;
     if(fmEnabled) {
         FM *fm = new FM(&currentSound, freq, &fmDepth);
-	    note = new Note(fm, envelope, freq, n);
-        if(fmModulatorEnabled)
-            note->addEnvelopeConnection(new EnvelopeConnection(envelope, fm, 1.0));
+	    note = new Note(fm, envelopes[0], freq, n);
+        if(fmEnvelopeEnabled)
+            note->addEnvelopeConnection(new EnvelopeConnection(envelopes[1], fm, &fmEnvAmount));
     }
     else
-	    note = new Note(new Oscillator(&currentSound, freq), envelope, freq, n);
+	    note = new Note(new Oscillator(&currentSound, freq), envelopes[0], freq, n);
     return note;
 }
 
@@ -36,8 +39,8 @@ void NoteFactory::setFmEnabled(bool fmEnabled) {
     this->fmEnabled = fmEnabled;
 }
 
-void NoteFactory::setFmModulatorEnabled(bool fmModulatorEnabled) {
-    this->fmModulatorEnabled = fmModulatorEnabled;
+void NoteFactory::setFmEnvelopeEnabled(bool fmEnvelopeEnabled) {
+    this->fmEnvelopeEnabled = fmEnvelopeEnabled;
 }
 
 vector<string> *NoteFactory::getWaveforms() {
@@ -54,4 +57,13 @@ void NoteFactory::initMaps() {
     waveforms["Triangle"] = Oscillators::triangle;
     waveforms["Square"] = Oscillators::square;
     waveforms["Sine"] = Oscillators::sine;
+}
+
+Envelope *NoteFactory::getEnvelope(int i) {
+    return envelopes[i];
+}
+
+
+void NoteFactory::setFmEnvAmount(double i) {
+    fmEnvAmount = i;
 }

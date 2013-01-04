@@ -20,6 +20,7 @@ Note::~Note() {
 void Note::setFreq(double freq) {
 	this->freq = freq;
 	period = SAMPLE_RATE/freq;
+	oscillator->setFreq(freq);
 }
 
 int Note::getSamplesElapsed() {
@@ -70,7 +71,7 @@ void Note::advance() {
     for (iter=envelopeConnections.begin(); iter != envelopeConnections.end(); ++iter) {
         isReleased() ? (*iter)->notify(samplesElapsed, releaseSample) : (*iter)->notify(samplesElapsed);
     }
-    samplesElapsed++;
+   samplesElapsed++;
 }
 
 double Note::getSample() {

@@ -8,13 +8,13 @@ using namespace std;
 
 class EnvelopeConnection {
     public:
-        EnvelopeConnection(Envelope *envelope, Envelopable *target, double amount);
+        EnvelopeConnection(Envelope *envelope, Envelopable *target, double *amount);
         void notify(int samplesElapsed);
         void notify(int samplesElapsed, int releaseSample);
     private:
         Envelope *envelope;
         Envelopable *target;
-        double amount;
+        double *amount;
 };
 
 #endif
