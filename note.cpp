@@ -71,14 +71,14 @@ void Note::advance() {
     for (iter=envelopeConnections.begin(); iter != envelopeConnections.end(); ++iter) {
         isReleased() ? (*iter)->notify(samplesElapsed, releaseSample) : (*iter)->notify(samplesElapsed);
     }
-   samplesElapsed++;
+    samplesElapsed++;
 }
 
 double Note::getSample() {
     double levelEnvelope, sample;
     levelEnvelope = isReleased() ? envelope->getFactor(samplesElapsed, releaseSample) : envelope->getFactor(samplesElapsed);
-	sample = oscillator->getSample()*levelEnvelope;
-	advance();
+    sample = oscillator->getSample()*levelEnvelope;
+    advance();
     return sample;
 }
 

@@ -28,6 +28,7 @@ class Keyboard : public SoundProcessor {
 	protected:
 		map<enum note, double> freqs;
 		bool isNote(char c);
+		void releaseNoteInternal(enum note n);
 		enum note getTransposition(enum note n, int transposeInKey);
 		enum note getTransposition(enum note n);
 		void initMaps();
@@ -36,6 +37,7 @@ class Keyboard : public SoundProcessor {
 		enum note getNatural(int n);
 		enum note getSharp(int n);
         pthread_mutex_t noteMutex;
+        pthread_mutex_t lastNoteMutex;
 		int getInterval(enum note);
         NoteFactory *noteFactory;
 

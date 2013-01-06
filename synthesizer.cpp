@@ -1,16 +1,18 @@
 #include "synthesizer.h"
 
 Synthesizer::Synthesizer() : 
-    noteFactory(),
+    waveTable(),
+    noteFactory(&waveTable),
     looper(&noteFactory, 2),
     normalKeyboard(&noteFactory),
-    keyboard(&looper),
+    keyboard(&normalKeyboard),
     vibrato(keyboard, 0.1, 0),
     chorus(&vibrato, 0.2, 1000),
     lpf(&vibrato),
     mainArea(this),
     envelopeBox(noteFactory.getEnvelope(0), &mainArea),
     freeEnvelopeBox(noteFactory.getEnvelope(1), &mainArea),
+    lfoBox(noteFactory.getLfo(0), &mainArea),
     vibratoBox(&vibrato, &mainArea),
     fmBox(&noteFactory, &mainArea),
     waveformSelectLabel(&mainArea),
@@ -18,23 +20,22 @@ Synthesizer::Synthesizer() :
     transposeSelectLabel(&mainArea),
     transposeSelect(&mainArea),
     levelSelectLabel(&mainArea),
-    levelSelect(&mainArea) {
-        level = 0.01;
-        initMaps();
-        state = NOT_RUNNING;
-        main = &vibrato;
-        prepareGui();
-    }
+    levelSelect(&mainArea)
+{
+    level = 0.01;
+    initMaps();
+    state = NOT_RUNNING;
+    main = keyboard;
+    prepareGui();
+}
 
 void Synthesizer::start() {
     int sample;
     state = RUNNING;
     while(state == RUNNING) {
         sample = (main->getSample()*CEILING) * level;
-        //for(vector<SoundEffect*>::iterator it = soundEffects.begin(); it != soundEffects.end(); ++it) {
-        //    sample = (*it)->getSample(sample);
-        //}
         soundManager.writeSample(sample);
+        //noteFactory.advanceLfos();
     }
 }
 
@@ -63,6 +64,7 @@ void Synthesizer::prepareGui() {
     layout.addWidget(&vibratoBox, 0, 4, 2, 1);
     layout.addWidget(&fmBox, 0, 5, 2, 1);
     layout.addWidget(&freeEnvelopeBox, 2, 0, 1, 1);
+    layout.addWidget(&lfoBox, 2, 1, 1, 1);
 
     mainArea.setLayout(&layout);
     setCentralWidget(&mainArea);

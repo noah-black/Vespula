@@ -11,12 +11,15 @@
 #include "oscillators.h"
 #include "oscillator.h"
 #include "note.h"
+#include "lfo.h"
+#include "lfoconnection.h"
+#include "wavetable.h"
 
 using namespace std;
 
 class NoteFactory {
 	public:
-		NoteFactory();
+        NoteFactory(WaveTable *waveTable);
         Note *getNote(double freq, enum note n);
 		void setWaveform(string i);
 		void setLevel(double i);
@@ -24,11 +27,15 @@ class NoteFactory {
         void setFmEnabled(bool fmEnabled);
         void setFmEnvelopeEnabled(bool fmEnvelopeEnabled);
         void setFmEnvAmount(double i);
+        void advanceLfos();
 		vector<string> *getWaveforms();
         Envelope *getEnvelope(int i);
+        LFO *getLfo(int i);
 	protected:
+        WaveTable *waveTable;
         double fmDepth;
         double fmEnvAmount;
+        double fmLfoAmount;
 		void initMaps();
 
 		map<string, waveformType> waveforms;
@@ -39,6 +46,7 @@ class NoteFactory {
         waveformType currentSound;
 
         vector<Envelope*> envelopes; 
+        vector<LFO*> lfos; 
 };
 
 #endif

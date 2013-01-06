@@ -2,21 +2,22 @@
 #include <stdio.h>
 using namespace std;
 
-Oscillator::Oscillator(waveformType *waveform, double freq) {
+Oscillator::Oscillator(WaveTable *waveTable, waveformType *waveform, double freq) :
+    waveTable(waveTable)
+{
     this->waveform = waveform;
 	period = SAMPLE_RATE/freq;
     phase = 0;
-    samples = new double[(int)ceil(period)];
-    uninitialized = true;
-}
-
-Oscillator::~Oscillator() {
-    delete[] samples;
+    pthread_mutex_init(&setFreqMutex, NULL);
 }
 
 void Oscillator::setFreq(double freq) {
-	period = SAMPLE_RATE/freq;
-    uninitialized = true;
+    double newPeriod;
+	newPeriod = SAMPLE_RATE/freq;
+    pthread_mutex_lock(&setFreqMutex);
+    phase = phase * (newPeriod/period);
+    period = newPeriod;
+    pthread_mutex_unlock(&setFreqMutex);
 }
 
 void Oscillator::advance() {
@@ -26,42 +27,11 @@ void Oscillator::advance() {
     }
 }
 
-void Oscillator::initialize() {
-    int i;
-    waveformType currentWaveform;
-    currentWaveform = *waveform;
-    for(i = 0; i < ceil(period); i++) {
-        samples[i] = currentWaveform(i, period);
-    }
-    uninitialized = false;
-}
-
 double Oscillator::getSample() {
     double sample;
-    sample = calculateSample();
-        //currentWaveform = *waveform;
-	//sample = currentWaveform(phase, period);
+    pthread_mutex_lock(&setFreqMutex);
+    sample = (waveTable->*(*waveform))(phase, SAMPLE_RATE/period);
 	advance();
+    pthread_mutex_unlock(&setFreqMutex);
     return sample;
-}
-
-double Oscillator::calculateSample() {
-    int i, j;
-    double weight;
-    if(uninitialized)
-        initialize();
-    if(fmod(phase, 1) != 0) {
-        i = floor(phase);
-        if(ceil(phase) >= period) {
-            j = 0;
-            weight = fmod(phase, 1) / fmod(period, 1);
-        }
-        else {
-            j = ceil(phase);
-            weight = fmod(phase, 1);
-        }
-        return ((1-weight)*samples[i]) + (weight*samples[j]);
-    }
-    else
-        return samples[(int)phase];
 }

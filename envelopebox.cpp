@@ -61,5 +61,5 @@ void EnvelopeBox::setSustain(int value) {
 	envelope->setSustain(((double)value)/100);
 }
 void EnvelopeBox::setRelease(int value) {
-	envelope->setRelease(((double)value)/50);
+	envelope->setRelease(pow((double)value, 2)/1000);
 }

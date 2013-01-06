@@ -19,19 +19,20 @@
 #include <QGridLayout>
 #include <QSlider>
 #include <QString>
-#include <jack/jack.h>
 #include "keyboard.h"
 #include "note.h"
 #include "lpf.h"
 #include "vibrato.h"
 #include "looper.h"
 #include "chorus.h"
-#include "soundeffect.h"
 #include "envelopebox.h"
+#include "lfobox.h"
 #include "vibratobox.h"
 #include "fmbox.h"
 #include "soundmanager.h"
 #include "notefactory.h"
+#include "lfo.h"
+#include "wavetable.h"
 
 using namespace std;
 
@@ -55,8 +56,8 @@ class Synthesizer : public QMainWindow {
 		void setLevel(int i);
 	private:
 		void prepareGui();
+        WaveTable waveTable;
 		vector<string> *waveforms;
-		vector<SoundEffect*> soundEffects;
         NoteFactory noteFactory;
 		Looper looper;
 		Keyboard normalKeyboard;
@@ -74,6 +75,7 @@ class Synthesizer : public QMainWindow {
 
 		EnvelopeBox envelopeBox;
 		EnvelopeBox freeEnvelopeBox;
+		LfoBox lfoBox;
         
         VibratoBox vibratoBox;
 

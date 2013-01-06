@@ -7,9 +7,9 @@ using namespace std;
 
 class Oscillators {
 	public:
-        static double triangle(waveformPrecision phase, waveformPrecision period);
-        static double sawtooth(waveformPrecision phase, waveformPrecision period);
-        static double square(waveformPrecision phase, waveformPrecision period);
-        static double sine(waveformPrecision phase, waveformPrecision period);
+        static double triangle(double phase, double period);
+        static double sawtooth(double phase, double period);
+        static double square(double phase, double period);
+        static double sine(double phase, double period);
 };
 #endif

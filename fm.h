@@ -2,18 +2,19 @@
 #define FM_H
 
 #include "oscillator.h"
-#include "envelopable.h"
+#include "modulatable.h"
 #include "envelopeconnection.h"
+#include "lfoable.h"
 #include <vector>
 
 using namespace std;
 
-class FM : public Oscillator, public Envelopable {
+class FM : public Oscillator, public Modulatable, public Lfoable {
 	public:
-		FM(waveformType* waveform, double freq, double *depth);
+		FM(WaveTable *waveTable, waveformType* waveform, double freq, double *depth);
 		virtual double getSample();
 		void setDepth(double i);
-        void envelopeUpdate(double amount);
+        void modulate(double amount);
 	private:
 		double *depth;
 		double carrierPhase;

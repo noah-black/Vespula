@@ -2,18 +2,18 @@
 #define ENVELOPE_CONNECTION_H
 
 #include "envelope.h"
-#include "envelopable.h"
+#include "modulatable.h"
 
 using namespace std;
 
 class EnvelopeConnection {
     public:
-        EnvelopeConnection(Envelope *envelope, Envelopable *target, double *amount);
+        EnvelopeConnection(Envelope *envelope, Modulatable *target, double *amount);
         void notify(int samplesElapsed);
         void notify(int samplesElapsed, int releaseSample);
     private:
         Envelope *envelope;
-        Envelopable *target;
+        Modulatable *target;
         double *amount;
 };
 

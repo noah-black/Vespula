@@ -10,6 +10,7 @@ noteFactory(noteFactory)
 	transposeInKey = 0;
 	initMaps();
     pthread_mutex_init(&noteMutex, NULL);
+    pthread_mutex_init(&lastNoteMutex, NULL);
 }
 
 void Keyboard::initMaps() {
@@ -20,8 +21,9 @@ void Keyboard::initMaps() {
 void Keyboard::playNote(enum note n) {
     double freq = freqs[getTransposition(n)]*pow(2.0, octave+((double)transpose)/12);
     Note *note;
-	if(lastNoteFor.find(n) != lastNoteFor.end() && !lastNoteFor[n]->isReleased())
-		lastNoteFor[n]->release();
+    pthread_mutex_lock(&lastNoteMutex);
+    releaseNoteInternal(n);
+    pthread_mutex_unlock(&lastNoteMutex);
     note = noteFactory->getNote(freq, n);
 	lastNoteFor[n] = note;
     pthread_mutex_lock(&noteMutex);
@@ -30,8 +32,60 @@ void Keyboard::playNote(enum note n) {
 }
 
 void Keyboard::releaseNote(enum note n) {
-	if(lastNoteFor.find(n) != lastNoteFor.end())
+    pthread_mutex_lock(&lastNoteMutex);
+    releaseNoteInternal(n);
+    pthread_mutex_unlock(&lastNoteMutex);
+}
+
+void Keyboard::releaseNoteInternal(enum note n) {
+	if(lastNoteFor.find(n) != lastNoteFor.end()) {
 		lastNoteFor[n]->release();
+        lastNoteFor.erase(n);
+    }
+}
+
+double Keyboard::getSample() {
+	double sample = 0;
+	vector<Note*>::iterator it;
+    pthread_mutex_lock(&noteMutex);
+	it = notes.begin();
+	while(it != notes.end()) {
+		sample += (*it)->getSample();
+		if((*it)->isDead()) {
+            pthread_mutex_lock(&lastNoteMutex);
+            releaseNoteInternal((*it)->getNote());
+            delete (*it);
+			it = notes.erase(it);
+            pthread_mutex_unlock(&lastNoteMutex);
+        }
+		else
+			it++;
+	}
+    pthread_mutex_unlock(&noteMutex);
+	return sample;
+}
+
+void Keyboard::setOctave(int i) {
+	octave = i;
+}
+
+void Keyboard::setTranspose(int i) {
+	transpose = i;
+}
+
+void Keyboard::setTransposeInKey(int i) {
+	enum note oldNote, newNote;
+	double oldFreq, newFreq;
+	int oldTransposeInKey = transposeInKey;
+	vector<Note*>::iterator it;
+	transposeInKey = i;
+	for(it = notes.begin(); it != notes.end(); ++it) {
+		oldNote = getTransposition((*it)->getNote(), oldTransposeInKey);
+		newNote = getTransposition((*it)->getNote(), transposeInKey);
+		oldFreq = (*it)->getFreq();
+		newFreq = oldFreq * (freqs[newNote]/freqs[oldNote]);
+		(*it)->setFreq(newFreq);
+	}
 }
 
 enum note Keyboard::getTransposition(enum note n, int transposeInKey) {
@@ -134,44 +188,4 @@ int Keyboard::getInterval(enum note n) {
 
 	}
 	return 0;
-}
-
-
-double Keyboard::getSample() {
-	double sample = 0;
-	vector<Note*>::iterator it;
-    pthread_mutex_lock(&noteMutex);
-	it = notes.begin();
-	while(it != notes.end()) {
-		sample += (*it)->getSample();
-		if((*it)->isDead())
-			it = notes.erase(it);
-		else
-			it++;
-	}
-    pthread_mutex_unlock(&noteMutex);
-	return sample;
-}
-
-void Keyboard::setOctave(int i) {
-	octave = i;
-}
-
-void Keyboard::setTranspose(int i) {
-	transpose = i;
-}
-
-void Keyboard::setTransposeInKey(int i) {
-	enum note oldNote, newNote;
-	double oldFreq, newFreq;
-	int oldTransposeInKey = transposeInKey;
-	vector<Note*>::iterator it;
-	transposeInKey = i;
-	for(it = notes.begin(); it != notes.end(); ++it) {
-		oldNote = getTransposition((*it)->getNote(), oldTransposeInKey);
-		newNote = getTransposition((*it)->getNote(), transposeInKey);
-		oldFreq = (*it)->getFreq();
-		newFreq = oldFreq * (freqs[newNote]/freqs[oldNote]);
-		(*it)->setFreq(newFreq);
-	}
 }

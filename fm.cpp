@@ -1,7 +1,7 @@
 #include "fm.h"
 #include <stdio.h>
 
-FM::FM(waveformType *waveform, double freq, double *depth) : Oscillator(waveform, freq) {
+FM::FM(WaveTable *waveTable, waveformType *waveform, double freq, double *depth) : Oscillator(waveTable, waveform, freq) {
 	this->depth = depth;
 	carrierPhase = 0;
     envelopeModifier = 0;
@@ -9,16 +9,18 @@ FM::FM(waveformType *waveform, double freq, double *depth) : Oscillator(waveform
 
 double FM::getSample() {
 	double in, out, freq, currentDepth;
-    currentDepth = *depth + envelopeModifier;
-    waveformType currentWaveform = *waveform;
+    pthread_mutex_lock(&setFreqMutex);
+    currentDepth = *depth + envelopeModifier + (getLfoPosition()*10000);
+    currentDepth = currentDepth < 0 ? 0 : currentDepth;
     freq = SAMPLE_RATE/period;
-	in = calculateSample();
+    in = (waveTable->*(*waveform))(phase, SAMPLE_RATE/period);
 	out = sin(2*PI*(carrierPhase/period));
 	carrierPhase = fmod((carrierPhase+1+(((currentDepth)*in)/freq)), period);
     advance();
+    pthread_mutex_unlock(&setFreqMutex);
 	return out;
 }
 
-void FM::envelopeUpdate(double amount) {
+void FM::modulate(double amount) {
     envelopeModifier = amount*10000;
 }

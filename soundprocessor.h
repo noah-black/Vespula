@@ -6,9 +6,9 @@
 #define PI		3.14159265358979323846
 
 #include <math.h>
+#include "wavetable.h"
 
-typedef double waveformPrecision;
-typedef double(*waveformType)(waveformPrecision, waveformPrecision);
+typedef double(WaveTable::*waveformType)(double, double);
 
 enum note {
 	n1,

@@ -1,8 +1,8 @@
 #ifndef ENVELOPE_H
 #define ENVELOPE_H
 
-#include "soundeffect.h"
 #include "modulator.h"
+#include "soundprocessor.h"
 
 using namespace std;
 
