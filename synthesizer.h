@@ -33,6 +33,7 @@
 #include "notefactory.h"
 #include "lfo.h"
 #include "wavetable.h"
+#include "waveformcombobox.h"
 
 using namespace std;
 
@@ -46,7 +47,6 @@ class Synthesizer : public QMainWindow {
 	Q_OBJECT
 	public:
 		Synthesizer();
-		vector<string> *getWaveforms();
         void start();
         Keyboard *getCurrentKeyboard();
 	public slots:
@@ -54,10 +54,10 @@ class Synthesizer : public QMainWindow {
 		void changeWaveform(int value);
 		void setTranspose(int value);
 		void setLevel(int i);
+        void setLooperEnabled(int state);
 	private:
 		void prepareGui();
         WaveTable waveTable;
-		vector<string> *waveforms;
         NoteFactory noteFactory;
 		Looper looper;
 		Keyboard normalKeyboard;
@@ -82,11 +82,14 @@ class Synthesizer : public QMainWindow {
         FmBox fmBox;
 
         QLabel waveformSelectLabel;
-		QComboBox waveformSelect;
+		WaveformComboBox waveformSelect;
         QLabel transposeSelectLabel;
 		QSpinBox transposeSelect;
         QLabel levelSelectLabel;
 		QSlider levelSelect;
+
+        QCheckBox looperEnabled;
+        QLabel looperLabel;
 
 	    QGridLayout layout;
 

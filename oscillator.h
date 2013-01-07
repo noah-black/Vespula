@@ -11,7 +11,7 @@ using namespace std;
 class Oscillator {
 	public:
         Oscillator(WaveTable *waveTable, waveformType *waveform, double freq);
-        void setFreq(double freq);
+        virtual void setFreq(double freq);
         virtual double getSample();
     protected:
         WaveTable *waveTable;

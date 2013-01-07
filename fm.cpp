@@ -24,3 +24,13 @@ double FM::getSample() {
 void FM::modulate(double amount) {
     envelopeModifier = amount*10000;
 }
+
+void FM::setFreq(double freq) {
+    double newPeriod;
+	newPeriod = SAMPLE_RATE/freq;
+    pthread_mutex_lock(&setFreqMutex);
+    phase = phase * (newPeriod/period);
+    carrierPhase = carrierPhase * (newPeriod/period);
+    period = newPeriod;
+    pthread_mutex_unlock(&setFreqMutex);
+}

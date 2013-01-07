@@ -9,11 +9,16 @@ FmBox::FmBox(NoteFactory *noteFactory, QWidget *parent) :
     fmEnabled(this),
     fmEnvelopeLabel(this),
     fmEnvAmountSelect(this),
-    fmEnvelopeEnabled(this)
+    fmEnvelopeEnabled(this),
+    fmLfoLabel(this),
+    fmLfoAmountSelect(this),
+    fmLfoEnabled(this)
 {
+    setMinimumHeight(200);
     fmLabel.setText("FM");
     fmDepthLabel.setText("Depth");
     fmEnvelopeLabel.setText("Envelope");
+    fmLfoLabel.setText("LFO");
 
     fmDepthSelect.setRange(0, 100);
     fmEnvAmountSelect.setRange(0, 100);
@@ -27,6 +32,10 @@ FmBox::FmBox(NoteFactory *noteFactory, QWidget *parent) :
     fmLayout.addWidget(&fmEnvelopeLabel, 1, 1, 1, 1, Qt::AlignHCenter);
     fmLayout.addWidget(&fmEnvAmountSelect, 2, 1, 1, 1, Qt::AlignHCenter);
     fmLayout.addWidget(&fmEnvelopeEnabled, 3, 1, 1, 1, Qt::AlignHCenter);
+
+    fmLayout.addWidget(&fmLfoLabel, 1, 2, 1, 1, Qt::AlignHCenter);
+    fmLayout.addWidget(&fmLfoAmountSelect, 2, 2, 1, 1, Qt::AlignHCenter);
+    fmLayout.addWidget(&fmLfoEnabled, 3, 2, 1, 1, Qt::AlignHCenter);
 
     this->setLayout(&fmLayout);
 
@@ -42,6 +51,11 @@ FmBox::FmBox(NoteFactory *noteFactory, QWidget *parent) :
     QObject::connect(&fmEnvelopeEnabled, SIGNAL(stateChanged(int)), this, SLOT(setFmEnvelopeEnabled(int)));
     QObject::connect(&fmEnvelopeEnabled, SIGNAL(stateChanged(int)), this, SLOT(setFocus()));
 
+    QObject::connect(&fmLfoAmountSelect, SIGNAL(valueChanged(int)), this, SLOT(setFmLfoAmount(int)));
+    QObject::connect(&fmLfoAmountSelect, SIGNAL(valueChanged(int)), this, SLOT(setFocus()));
+
+    QObject::connect(&fmLfoEnabled, SIGNAL(stateChanged(int)), this, SLOT(setFmLfoEnabled(int)));
+    QObject::connect(&fmLfoEnabled, SIGNAL(stateChanged(int)), this, SLOT(setFocus()));
 }
 
 void FmBox::setFmDepth(int i) {
@@ -58,4 +72,12 @@ void FmBox::setFmEnvelopeEnabled(int state) {
 
 void FmBox::setFmEnvAmount(int i) {
     noteFactory->setFmEnvAmount(((double)i)/100);
+}
+
+void FmBox::setFmLfoEnabled(int state) {
+    noteFactory->setFmLfoEnabled(state == Qt::Checked);
+}
+
+void FmBox::setFmLfoAmount(int i) {
+    noteFactory->setFmLfoAmount(((double)i)/100);
 }

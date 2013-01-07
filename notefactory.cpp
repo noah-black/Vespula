@@ -1,5 +1,4 @@
 #include "notefactory.h"
-
 using namespace std;
 
 NoteFactory::NoteFactory(WaveTable *waveTable) : 
@@ -10,11 +9,11 @@ NoteFactory::NoteFactory(WaveTable *waveTable) :
     lfos.push_back(new LFO(waveTable));
     fmEnabled = false;
     fmEnvelopeEnabled = false;
+    fmLfoEnabled = false;
     fmDepth = 0;
     fmEnvAmount = 0;
-    fmLfoAmount = 0.1;
+    fmLfoAmount = 0;
     currentSound = &WaveTable::sawtooth;
-    initMaps();
 }
 
 Note *NoteFactory::getNote(double freq, enum note n) {
@@ -22,7 +21,8 @@ Note *NoteFactory::getNote(double freq, enum note n) {
     if(fmEnabled) {
         FM *fm = new FM(waveTable, &currentSound, freq, &fmDepth);
 	    note = new Note(fm, envelopes[0], freq, n);
-        fm->addLfoConnection(new LfoConnection(lfos[0], &fmLfoAmount));
+        if(fmLfoEnabled)
+            fm->addLfoConnection(new LfoConnection(lfos[0], &fmLfoAmount));
         if(fmEnvelopeEnabled)
             note->addEnvelopeConnection(new EnvelopeConnection(envelopes[1], fm, &fmEnvAmount));
     }
@@ -31,8 +31,8 @@ Note *NoteFactory::getNote(double freq, enum note n) {
     return note;
 }
 
-void NoteFactory::setWaveform(string i) {
-    currentSound = waveforms[i];
+void NoteFactory::setWaveform(waveformType waveform) {
+    currentSound = waveform;
 }
 
 void NoteFactory::setFmDepth(double i) {
@@ -47,20 +47,16 @@ void NoteFactory::setFmEnvelopeEnabled(bool fmEnvelopeEnabled) {
     this->fmEnvelopeEnabled = fmEnvelopeEnabled;
 }
 
-vector<string> *NoteFactory::getWaveforms() {
-    vector<string> *waveformList = new vector<string>();
-    map<string, waveformType>::const_iterator iter;
-    for (iter=waveforms.begin(); iter != waveforms.end(); ++iter) {
-        waveformList->push_back(iter->first);
-    }
-    return waveformList;
+void NoteFactory::setFmEnvAmount(double i) {
+    fmEnvAmount = i;
 }
 
-void NoteFactory::initMaps() {
-    waveforms["Sawtooth"] = &WaveTable::sawtooth;
-    waveforms["Triangle"] = &WaveTable::triangle;
-    waveforms["Square"] = &WaveTable::square;
-    waveforms["Sine"] = &WaveTable::sine;
+void NoteFactory::setFmLfoEnabled(bool fmLfoEnabled) {
+    this->fmLfoEnabled = fmLfoEnabled;
+}
+
+void NoteFactory::setFmLfoAmount(double i) {
+    fmLfoAmount = i;
 }
 
 Envelope *NoteFactory::getEnvelope(int i) {
@@ -69,10 +65,6 @@ Envelope *NoteFactory::getEnvelope(int i) {
 
 LFO *NoteFactory::getLfo(int i) {
     return lfos[i];
-}
-
-void NoteFactory::setFmEnvAmount(double i) {
-    fmEnvAmount = i;
 }
 
 void NoteFactory::advanceLfos() {

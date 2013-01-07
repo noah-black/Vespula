@@ -6,7 +6,7 @@ Synthesizer::Synthesizer() :
     looper(&noteFactory, 2),
     normalKeyboard(&noteFactory),
     keyboard(&normalKeyboard),
-    vibrato(keyboard, 0.1, 0),
+    vibrato(&keyboard, 0.1, 0),
     chorus(&vibrato, 0.2, 1000),
     lpf(&vibrato),
     mainArea(this),
@@ -20,12 +20,14 @@ Synthesizer::Synthesizer() :
     transposeSelectLabel(&mainArea),
     transposeSelect(&mainArea),
     levelSelectLabel(&mainArea),
-    levelSelect(&mainArea)
+    levelSelect(&mainArea),
+    looperEnabled(&mainArea),
+    looperLabel(&mainArea)
 {
     level = 0.01;
     initMaps();
     state = NOT_RUNNING;
-    main = keyboard;
+    main = &vibrato;
     prepareGui();
 }
 
@@ -40,12 +42,9 @@ void Synthesizer::start() {
 }
 
 void Synthesizer::prepareGui() {
-    waveforms = getWaveforms();
-    for(vector<string>::iterator it = waveforms->begin(); it != waveforms->end(); ++it)
-        waveformSelect.addItem(QString::fromStdString((*it)));
 
+    looperLabel.setText("Looper: ");
     waveformSelectLabel.setText("Waveform: ");
-
     transposeSelectLabel.setText("Transpose: ");
     transposeSelect.setRange(-12, 12);
     transposeSelect.setSingleStep(1);
@@ -54,17 +53,19 @@ void Synthesizer::prepareGui() {
     levelSelect.setRange(0, 100);
     levelSelect.setValue(10);
 
-    layout.addWidget(&waveformSelectLabel, 0, 0, 1, 1);
-    layout.addWidget(&waveformSelect, 0, 1, 1, 1);
-    layout.addWidget(&transposeSelectLabel, 1, 0, 1, 1);
-    layout.addWidget(&transposeSelect, 1, 1, 1, 1);
-    layout.addWidget(&levelSelectLabel, 1, 2, 1, 1);
-    layout.addWidget(&levelSelect, 0, 2, 1, 1);
-    layout.addWidget(&envelopeBox, 0, 3, 2, 1);
-    layout.addWidget(&vibratoBox, 0, 4, 2, 1);
-    layout.addWidget(&fmBox, 0, 5, 2, 1);
-    layout.addWidget(&freeEnvelopeBox, 2, 0, 1, 1);
-    layout.addWidget(&lfoBox, 2, 1, 1, 1);
+    layout.addWidget(&looperLabel, 0, 0, 1, 1);
+    layout.addWidget(&looperEnabled, 0, 1, 1, 1);
+    layout.addWidget(&waveformSelectLabel, 1, 0, 1, 1);
+    layout.addWidget(&waveformSelect, 1, 1, 1, 1);
+    layout.addWidget(&transposeSelectLabel, 2, 0, 1, 1);
+    layout.addWidget(&transposeSelect, 2, 1, 1, 1);
+    layout.addWidget(&levelSelectLabel, 2, 2, 1, 1);
+    layout.addWidget(&levelSelect, 0, 2, 2, 1);
+    layout.addWidget(&envelopeBox, 0, 3, 3, 1);
+    layout.addWidget(&vibratoBox, 0, 4, 3, 1);
+    layout.addWidget(&fmBox, 0, 5, 3, 1);
+    layout.addWidget(&freeEnvelopeBox, 3, 0, 1, 1);
+    layout.addWidget(&lfoBox, 3, 1, 1, 1);
 
     mainArea.setLayout(&layout);
     setCentralWidget(&mainArea);
@@ -72,15 +73,17 @@ void Synthesizer::prepareGui() {
     show();
     setFocus();
 
-    QObject::connect(&waveformSelect, SIGNAL(activated(int)), this, SLOT(changeWaveform(int)));
-    QObject::connect(&waveformSelect, SIGNAL(activated(int)), this, SLOT(setFocus()));
+    QObject::connect(&looperEnabled, SIGNAL(stateChanged(int)), this, SLOT(setLooperEnabled(int)));
+    QObject::connect(&looperEnabled, SIGNAL(stateChanged(int)), this, SLOT(setFocus()));
+
+    QObject::connect(&waveformSelect, SIGNAL(currentIndexChanged(int)), this, SLOT(changeWaveform(int)));
+    QObject::connect(&waveformSelect, SIGNAL(currentIndexChanged(int)), this, SLOT(setFocus()));
 
     QObject::connect(&transposeSelect, SIGNAL(valueChanged(int)), this, SLOT(setTranspose(int)));
     QObject::connect(&transposeSelect, SIGNAL(valueChanged(int)), this, SLOT(setFocus()));
 
     QObject::connect(&levelSelect, SIGNAL(valueChanged(int)), this, SLOT(setLevel(int)));
     QObject::connect(&levelSelect, SIGNAL(valueChanged(int)), this, SLOT(setFocus()));
-
 }
 
 void Synthesizer::keyPressEvent(QKeyEvent *event) {
@@ -113,7 +116,7 @@ void Synthesizer::done() {
 }
 
 void Synthesizer::changeWaveform(int i) {
-    noteFactory.setWaveform((*waveforms)[i]);
+    noteFactory.setWaveform(waveformSelect.getWaveformType(i));
 }
 
 void Synthesizer::setTranspose(int i) {
@@ -142,6 +145,6 @@ void Synthesizer::initMaps() {
     keyMap[Qt::Key_L] = n9;
 }
 
-vector<string> *Synthesizer::getWaveforms() {
-    return noteFactory.getWaveforms();
+void Synthesizer::setLooperEnabled(int state) {
+    keyboard = state == Qt::Checked ? &looper : &normalKeyboard;
 }

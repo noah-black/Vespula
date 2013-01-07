@@ -12,14 +12,11 @@ WaveTable::WaveTable() {
 
 WaveTable::~WaveTable() {
     int i;
-//    for(i = 0; i < NUM_NOTES; i++) {
-//        delete[] triangleTable[i];
-//        delete[] sawtoothTable[i];
-//        delete[] squareTable[i];
-//    }
-//    delete[] triangleTable;
-//    delete[] sawtoothTable;
-//    delete[] squareTable;
+    for(i = 0; i < NUM_NOTES; i++) {
+        delete[] triangleTable[i];
+        delete[] sawtoothTable[i];
+        delete[] squareTable[i];
+    }
 }
 
 double WaveTable::triangle(double phase, double freq) {
@@ -45,44 +42,56 @@ double WaveTable::getSample(double phase, double freq, double **table) {
     ratio = freq/closestFreq;
     amountRead = 0;
     cursor = ratio*phase;
-    //printf("index: %f, closest: %d, cursor: %f, period: %f, closestFreq: %f, freq: %f\n", index, closest, cursor, period, closestFreq, freq);
+    //printf("%f\n", ratio);
     while(amountRead < ratio) {
         double weightLeft, weightRight;
         int indexLeft, indexRight;
         if(ratio - amountRead >= 1) { // can read whole sample
             if(fmod(cursor, period)+1 < period) { // no period wrapping stuff to worry about
-                if(fmod(cursor, period) == 0) {
+                if(fmod(fmod(cursor, period), 1) == 0) { // can read sample at whatever[cursor]
+                    //printf("1\n");
                     weightLeft = 0;
                     indexLeft = 0;
                     weightRight = 1;
-                    indexRight = (int)floor(fmod(cursor,period));
+                    indexRight = (int)fmod(cursor,period);
                 }
-                else {
+                else { // have to straddle two samples for one whole sample
+                    //printf("2\n");
                     weightLeft = 1-fmod(fmod(cursor, period), 1);
                     indexLeft = (int)floor(fmod(cursor,period));
-                    weightRight = fmod(fmod(cursor, period), 1);
-                    indexRight = (int)ceil(fmod(cursor,period));
+                    weightRight = 1 - weightLeft;
+                    indexRight = indexLeft+1;
                 }
             }
-            else {
-                weightLeft = fmod(period, 1)-fmod(fmod(cursor, period), 1);
-                indexLeft = (int)floor(period);
-                weightRight = fmod(fmod(cursor+1,period), 1);
-                indexRight = 0;
+            else { // period wrapping
+                if(floor(fmod(cursor, period)) == floor(period)) { // on last sample
+                    //printf("3\n");
+                    weightLeft = period-fmod(cursor, period);
+                    indexLeft = (int)floor(period);
+                    weightRight = fmod(fmod(cursor+1,period), 1);
+                    indexRight = 0;
+                }
+                else { // just read rest of current sample and the trailing half-sample, and increment accordingly
+                    //printf("4\n");
+                    weightLeft = (1-fmod(fmod(cursor, period), 1));
+                    indexLeft = (int)floor(period) - 1;
+                    weightRight = fmod(period, 1);
+                    indexRight = (int)floor(period);
+                }
             }
-            amountRead += 1;
-            cursor += 1;
         }
         else {
             amountLeft = ratio - amountRead;
             if(fmod(cursor, period)+amountLeft < period) { // no period wrapping stuff to worry about
                 if(fmod(fmod(cursor, period), 1) + amountLeft < 1) { // we only worry about one sample 
+                    //printf("5\n");
                     weightLeft = 0;
                     indexLeft = 0;
                     weightRight = amountLeft;
                     indexRight = (int)floor(fmod(cursor,period));
                 }
                 else {
+                    //printf("6\n");
                     weightLeft = 1-fmod(fmod(cursor, period), 1);
                     indexLeft = (int)floor(fmod(cursor,period));
                     weightRight = amountLeft - weightLeft;
@@ -90,13 +99,24 @@ double WaveTable::getSample(double phase, double freq, double **table) {
                 }
             }
             else {
-                weightLeft = fmod(period, 1)-fmod(fmod(cursor, period), 1);
-                indexLeft = (int)floor(period);
-                weightRight = fmod(fmod(cursor+amountLeft, period), 1);
-                indexRight = 0;
+                if(floor(fmod(cursor, period)) == floor(period)) { // on last sample
+                    //printf("7\n");
+                    weightLeft = fmod(period, 1)-fmod(fmod(cursor, period), 1);
+                    indexLeft = (int)floor(period);
+                    weightRight = fmod(fmod(cursor+amountLeft, period), 1);
+                    indexRight = 0;
+                }
+                else { // just read rest of current sample and the trailing half-sample, and increment accordingly
+                    //printf("8\n");
+                    weightLeft = (1-fmod(fmod(cursor, period), 1));
+                    indexLeft = (int)floor(period) - 1;
+                    weightRight = fmod(period, 1);
+                    indexRight = (int)floor(period);
+                }
             }
-            amountRead = ratio;
         }
+        amountRead += weightLeft + weightRight;
+        cursor += weightLeft + weightRight;
         sample += weightLeft*table[closest][indexLeft] + weightRight*table[closest][indexRight];
     }
     return sample/ratio;

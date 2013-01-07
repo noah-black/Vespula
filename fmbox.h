@@ -20,9 +20,11 @@ class FmBox : public QGroupBox
         FmBox(NoteFactory *noteFactory, QWidget *parent);
     public slots:
 		void setFmDepth(int i);
-        void setFmEnvAmount(int i);
         void setFmEnabled(int state);
         void setFmEnvelopeEnabled(int state);
+        void setFmEnvAmount(int i);
+        void setFmLfoEnabled(int state);
+        void setFmLfoAmount(int i);
 	private:
         NoteFactory *noteFactory;
         QGridLayout fmLayout;
@@ -35,5 +37,9 @@ class FmBox : public QGroupBox
         QLabel fmEnvelopeLabel;
 		QSlider fmEnvAmountSelect;
 		QCheckBox fmEnvelopeEnabled;
+
+        QLabel fmLfoLabel;
+		QSlider fmLfoAmountSelect;
+		QCheckBox fmLfoEnabled;
 };
 #endif

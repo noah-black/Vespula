@@ -52,7 +52,7 @@ EnvelopeBox::EnvelopeBox(Envelope *envelope, QWidget *parent) :
 	QObject::connect(&releaseSelect, SIGNAL(valueChanged(int)), this, SLOT(setFocus()));
 }
 void EnvelopeBox::setAttack(int value) {
-	envelope->setAttack(((double)value)/50);
+	envelope->setAttack(pow((double)value, 2)/2000);
 }
 void EnvelopeBox::setDecay(int value) {
 	envelope->setDecay(((double)value)/50);

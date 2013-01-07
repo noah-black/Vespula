@@ -2,7 +2,7 @@
 #include <math.h>
 #include <stdio.h>
 
-Vibrato::Vibrato(SoundProcessor *input, double period, double depth) {
+Vibrato::Vibrato(Keyboard **input, double period, double depth) {
 	this->depth = depth;
 	this->input = input;
 	this->period = (int)(period * SAMPLE_RATE);
@@ -21,7 +21,7 @@ double Vibrato::getSample() {
 	for(i = 0; i < virtSampleSize;){
 		offset = fmod(cursor, 1);
 		if(offset == 0) { 
-			lastSample = input->getSample();
+			lastSample = (*input)->getSample();
 		}
 		amountToRead = (virtSampleSize-i > 1-offset) ? 1-offset : virtSampleSize-i;
 		i += amountToRead;

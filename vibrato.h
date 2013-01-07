@@ -4,12 +4,13 @@
 #include <vector>
 #include "soundprocessor.h"
 #include <pthread.h>
+#include "keyboard.h"
 
 using namespace std;
 
 class Vibrato : public SoundProcessor {
 	public:
-		Vibrato(SoundProcessor *input, double period, double depth);
+		Vibrato(Keyboard **input, double period, double depth);
 		double getSample();
 		void setDepth(double depth);
 		void setPeriod(double period);
@@ -20,7 +21,7 @@ class Vibrato : public SoundProcessor {
 		int period;
 		double depth;
 		double lastSample;
-		SoundProcessor *input;
+		Keyboard **input;
 };
 
 #endif

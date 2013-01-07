@@ -21,14 +21,15 @@ class NoteFactory {
 	public:
         NoteFactory(WaveTable *waveTable);
         Note *getNote(double freq, enum note n);
-		void setWaveform(string i);
+		void setWaveform(waveformType waveform);
 		void setLevel(double i);
 		void setFmDepth(double i);
         void setFmEnabled(bool fmEnabled);
         void setFmEnvelopeEnabled(bool fmEnvelopeEnabled);
         void setFmEnvAmount(double i);
+        void setFmLfoEnabled(bool fmLfoEnabled);
+        void setFmLfoAmount(double i);
         void advanceLfos();
-		vector<string> *getWaveforms();
         Envelope *getEnvelope(int i);
         LFO *getLfo(int i);
 	protected:
@@ -36,12 +37,10 @@ class NoteFactory {
         double fmDepth;
         double fmEnvAmount;
         double fmLfoAmount;
-		void initMaps();
-
-		map<string, waveformType> waveforms;
 
         bool fmEnabled;
         bool fmEnvelopeEnabled;
+        bool fmLfoEnabled;
 
         waveformType currentSound;
 
