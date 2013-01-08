@@ -21,8 +21,7 @@ Synthesizer::Synthesizer() :
     transposeSelect(&mainArea),
     levelSelectLabel(&mainArea),
     levelSelect(&mainArea),
-    looperEnabled(&mainArea),
-    looperLabel(&mainArea)
+    looperBox(&keyboard, &normalKeyboard, &looper, &mainArea)
 {
     level = 0.01;
     initMaps();
@@ -35,15 +34,14 @@ void Synthesizer::start() {
     int sample;
     state = RUNNING;
     while(state == RUNNING) {
-        sample = (main->getSample()*CEILING) * level;
+        sample = (int)(floor((main->getSample()*CEILING) * level)+0.5);
         soundManager.writeSample(sample);
-        //noteFactory.advanceLfos();
+        noteFactory.advanceLfos();
     }
 }
 
 void Synthesizer::prepareGui() {
 
-    looperLabel.setText("Looper: ");
     waveformSelectLabel.setText("Waveform: ");
     transposeSelectLabel.setText("Transpose: ");
     transposeSelect.setRange(-12, 12);
@@ -53,8 +51,7 @@ void Synthesizer::prepareGui() {
     levelSelect.setRange(0, 100);
     levelSelect.setValue(10);
 
-    layout.addWidget(&looperLabel, 0, 0, 1, 1);
-    layout.addWidget(&looperEnabled, 0, 1, 1, 1);
+    layout.addWidget(&looperBox, 0, 0, 1, 2);
     layout.addWidget(&waveformSelectLabel, 1, 0, 1, 1);
     layout.addWidget(&waveformSelect, 1, 1, 1, 1);
     layout.addWidget(&transposeSelectLabel, 2, 0, 1, 1);
@@ -73,8 +70,6 @@ void Synthesizer::prepareGui() {
     show();
     setFocus();
 
-    QObject::connect(&looperEnabled, SIGNAL(stateChanged(int)), this, SLOT(setLooperEnabled(int)));
-    QObject::connect(&looperEnabled, SIGNAL(stateChanged(int)), this, SLOT(setFocus()));
 
     QObject::connect(&waveformSelect, SIGNAL(currentIndexChanged(int)), this, SLOT(changeWaveform(int)));
     QObject::connect(&waveformSelect, SIGNAL(currentIndexChanged(int)), this, SLOT(setFocus()));
@@ -143,8 +138,4 @@ void Synthesizer::initMaps() {
     keyMap[Qt::Key_K] = n8;
     keyMap[Qt::Key_O] = s8;
     keyMap[Qt::Key_L] = n9;
-}
-
-void Synthesizer::setLooperEnabled(int state) {
-    keyboard = state == Qt::Checked ? &looper : &normalKeyboard;
 }

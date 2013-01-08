@@ -33,7 +33,6 @@ LfoBox::LfoBox(LFO *lfo, QWidget *parent) :
 }
 
 void LfoBox::setFreq(int value) {
-    printf("%f\n", pow((double)value/100, 2)*30);
     lfo->setFreq(pow((double)value/100, 2)*30);
 }
 

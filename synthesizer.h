@@ -34,6 +34,7 @@
 #include "lfo.h"
 #include "wavetable.h"
 #include "waveformcombobox.h"
+#include "looperbox.h"
 
 using namespace std;
 
@@ -54,7 +55,6 @@ class Synthesizer : public QMainWindow {
 		void changeWaveform(int value);
 		void setTranspose(int value);
 		void setLevel(int i);
-        void setLooperEnabled(int state);
 	private:
 		void prepareGui();
         WaveTable waveTable;
@@ -87,9 +87,7 @@ class Synthesizer : public QMainWindow {
 		QSpinBox transposeSelect;
         QLabel levelSelectLabel;
 		QSlider levelSelect;
-
-        QCheckBox looperEnabled;
-        QLabel looperLabel;
+        LooperBox looperBox;
 
 	    QGridLayout layout;
 

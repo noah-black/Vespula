@@ -24,12 +24,6 @@ class WaveTable {
         double squareFunction(double phase, double f);
         double triangleFunction(double phase, double f);
     private:
-        static double debugSample1(double cursor, double period, double **table, int closest);
-        static double debugSample2(double cursor, double period, double **table, int closest);
-        static double debugSample3(double cursor, double period, double **table, int closest);
-        static double debugSample4(double cursor, double period, double **table, int closest, double amountLeft);
-        static double debugSample5(double cursor, double period, double **table, int closest, double amountLeft);
-        static double debugSample6(double cursor, double period, double **table, int closest, double amountLeft);
         double *triangleTable[NUM_NOTES];
         double *squareTable[NUM_NOTES];
         double *sawtoothTable[NUM_NOTES];

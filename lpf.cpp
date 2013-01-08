@@ -5,8 +5,10 @@
 LPF::LPF(SoundProcessor *input) {
 	this->input = input;
 	pthread_mutex_init(&mutexsum, NULL);
-	alpha = 0.05;
+	alpha = 0.1;
 	started = false;
+    period = 0.5*SAMPLE_RATE;
+    phase = 0;
 }
 
 double LPF::getSample() {
@@ -19,7 +21,8 @@ double LPF::getSample() {
 		lastOutputSample = nextSample;
 		return nextSample;
 	}
-	outputSample = lastOutputSample + (alpha * (nextSample - lastOutputSample));
+	outputSample = lastOutputSample + ((alpha+(0.05*sin(2*PI*phase/period))) * (nextSample - lastOutputSample));
 	lastOutputSample = outputSample;
+    phase = fmod(++phase, period);
 	return outputSample*8;
 }

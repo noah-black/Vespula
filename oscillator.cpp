@@ -12,9 +12,9 @@ Oscillator::Oscillator(WaveTable *waveTable, waveformType *waveform, double freq
 }
 
 void Oscillator::setFreq(double freq) {
+    pthread_mutex_lock(&setFreqMutex);
     double newPeriod;
 	newPeriod = SAMPLE_RATE/freq;
-    pthread_mutex_lock(&setFreqMutex);
     phase = phase * (newPeriod/period);
     period = newPeriod;
     pthread_mutex_unlock(&setFreqMutex);
@@ -22,14 +22,14 @@ void Oscillator::setFreq(double freq) {
 
 void Oscillator::advance() {
 	phase += 1;
-    if(phase >= period) {
+    if(phase >= period-0.001) {
         phase -= period;
     }
 }
 
 double Oscillator::getSample() {
-    double sample;
     pthread_mutex_lock(&setFreqMutex);
+    double sample;
     sample = (waveTable->*(*waveform))(phase, SAMPLE_RATE/period);
 	advance();
     pthread_mutex_unlock(&setFreqMutex);

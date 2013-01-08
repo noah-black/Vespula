@@ -28,9 +28,9 @@ void SoundManager::writeSample(int sample) {
             rc = snd_pcm_writei(handle, buffer, frames);
         }
 		if (rc < 0) 
-			fprintf(stderr, "error from writei: %s\n", snd_strerror(rc));
+			printf("error from writei: %s\n", snd_strerror(rc));
 		else if (rc != frames) 
-			fprintf(stderr, "short write, write %d frames\n", rc);
+			printf("short write, write %d frames\n", rc);
         bufferIndex = 0;
 	}
 }

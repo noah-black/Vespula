@@ -20,13 +20,16 @@ struct savedNote {
 class Looper : public Keyboard {
 	public:
 		Looper(NoteFactory *noteFactory, double periodSeconds);
-		virtual double getSample();
-		virtual void releaseNote(enum note n);
+		double getSample();
+		void releaseNote(enum note n);
+        void setDuration(double value);
+        void clear();
 	private:
    		pthread_mutex_t mutexsum;
-		void playSavedNote(struct savedNote*);
+   		pthread_mutex_t savedNoteMutex;
+		void playSavedNote(struct savedNote);
 		double getNotesSample();
-		vector< vector<struct savedNote*> > savedNotes;
+		vector< vector<struct savedNote> > savedNotes;
 		int period;
 		int phase;
 };

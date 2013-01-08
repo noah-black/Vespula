@@ -16,6 +16,8 @@ class LPF: public SoundProcessor {
 		double lastOutputSample;
 		SoundProcessor *input;
 		bool started;
+        double phase;
+        double period;
 };
 
 #endif

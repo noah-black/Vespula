@@ -79,6 +79,7 @@ void Keyboard::setTransposeInKey(int i) {
 	int oldTransposeInKey = transposeInKey;
 	vector<Note*>::iterator it;
 	transposeInKey = i;
+    pthread_mutex_lock(&noteMutex);
 	for(it = notes.begin(); it != notes.end(); ++it) {
 		oldNote = getTransposition((*it)->getNote(), oldTransposeInKey);
 		newNote = getTransposition((*it)->getNote(), transposeInKey);
@@ -86,6 +87,7 @@ void Keyboard::setTransposeInKey(int i) {
 		newFreq = oldFreq * (freqs[newNote]/freqs[oldNote]);
 		(*it)->setFreq(newFreq);
 	}
+    pthread_mutex_unlock(&noteMutex);
 }
 
 enum note Keyboard::getTransposition(enum note n, int transposeInKey) {
