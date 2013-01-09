@@ -86,7 +86,11 @@ void Looper::setDuration(double value) {
 
 void Looper::clear() {
 	pthread_mutex_lock(&mutexsum);
+	pthread_mutex_lock(&noteMutex);
 	for(vector< vector<struct savedNote> >::iterator it = savedNotes.begin(); it != savedNotes.end(); ++it)
         it->clear();
+	vector<Note*>::iterator it;
+    notes.clear();
+	pthread_mutex_unlock(&noteMutex);
 	pthread_mutex_unlock(&mutexsum);
 }

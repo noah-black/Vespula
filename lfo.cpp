@@ -17,6 +17,7 @@ void LFO::advance() {
 }
 
 void LFO::setFreq(double freq) {
+    printf("%f\n", freq);
     oscillator.setFreq(freq);
 }
 

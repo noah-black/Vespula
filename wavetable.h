@@ -3,8 +3,9 @@
 
 #include <vector>
 
-#define NUM_NOTES 108
-#define MIDDLE_A_INDEX 48
+#define NUM_NOTES 84
+#define MIDDLE_A_INDEX 36
+#define ALIASING_THRESHOLD 110
 
 using namespace std;
 

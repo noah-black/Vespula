@@ -23,14 +23,26 @@ WaveTable::~WaveTable() {
 }
 
 double WaveTable::triangle(double phase, double freq) {
+    if(freq < ALIASING_THRESHOLD) {
+        double t = phase*freq/SAMPLE_RATE;
+        return pow(-1, (int)floor(t+0.5))*((t*2)-1);
+    }
     return getSample(phase, freq, triangleTable);
 } 
 double WaveTable::square(double phase, double freq) {
+    if(freq < ALIASING_THRESHOLD) {
+        return (phase*freq/SAMPLE_RATE) < 0.5 ? 0 : 1;
+    }
     return getSample(phase, freq, squareTable);
 }
 
 double WaveTable::sawtooth(double phase, double freq) {
-    return getSample(phase, freq, sawtoothTable);
+    if(freq < ALIASING_THRESHOLD) {
+        double t = phase*freq/SAMPLE_RATE;
+        return (t - floor(t+0.5))*2;
+    }
+    else
+        return getSample(phase, freq, sawtoothTable);
 }
 
 double WaveTable::getSample(double phase, double freq, double **table) {
@@ -109,9 +121,9 @@ double WaveTable::sawtoothFunction(double phase, double f) {
     t = phase/SAMPLE_RATE;
     sum = 0;
     for(i = 1; i < SAMPLE_RATE/(2*f); i++) {
-        sum += (i%2==1?1:-1)*sin(2*PI*i*f*t)/i;
+        sum += pow(-1, i+1)*sin(2*PI*i*f*t)/i;
     }
-    sample = (2*sum)/PI;
+    sample = (2*sum)/(PI);
     return sample;
 }
 
@@ -120,10 +132,10 @@ double WaveTable::squareFunction(double phase, double f) {
     int i;
     t = phase/SAMPLE_RATE;
     sum = 0;
-    for(i = 1; i < (SAMPLE_RATE/2)/f; i+=2) {
-        sum += (i%2==1?1:-1) * sin(2*PI*i*f*t)/i;
+    for(i = 1; i < (SAMPLE_RATE/4)/f; i++) {
+        sum += sin(2*PI*(2*i-1)*f*t)/(2*i-1);
     }
-    sample = (2*sum)/PI;
+    sample = (4*sum)/PI;
     return sample;
 }
 
@@ -132,9 +144,9 @@ double WaveTable::triangleFunction(double phase, double f) {
     int i;
     t = phase/SAMPLE_RATE;
     sum = 0;
-    for(i = 1; i < (SAMPLE_RATE/2)/f; i+=2) {
-        sum += (i%2==1?1:-1) * sin(2*PI*i*f*t)/i;
+    for(i = 0; i < (SAMPLE_RATE/4)/f; i++) {
+        sum += pow(-1, i)*sin((2*i+1)*2*PI*f*t)/pow(2*i+1, 2);
     }
-    sample = (2*sum)/PI;
+    sample = (8*sum)/(pow(PI, 2));
     return sample;
 }
