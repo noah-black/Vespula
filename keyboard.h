@@ -25,6 +25,8 @@ class Keyboard : public SoundProcessor {
 		void setOctave(int i);
 		void setTransposeInKey(int i);
 		void setTranspose(int i);
+        void clearAllBut(enum note n);
+        void setMonophonic(bool monophonic);
 	protected:
 		map<enum note, double> freqs;
 		bool isNote(char c);
@@ -47,6 +49,7 @@ class Keyboard : public SoundProcessor {
 		int octave;
 		int transpose;
 		int transposeInKey;
+        bool monophonic;
 };
 
 #endif

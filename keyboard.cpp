@@ -11,6 +11,7 @@ noteFactory(noteFactory)
 	initMaps();
     pthread_mutex_init(&noteMutex, NULL);
     pthread_mutex_init(&lastNoteMutex, NULL);
+    monophonic = false;
 }
 
 void Keyboard::initMaps() {
@@ -26,6 +27,8 @@ void Keyboard::playNote(enum note n) {
     pthread_mutex_unlock(&lastNoteMutex);
     note = noteFactory->getNote(freq, n);
 	lastNoteFor[n] = note;
+    if(monophonic)
+        clearAllBut(n);
     pthread_mutex_lock(&noteMutex);
 	notes.push_back(note);
     pthread_mutex_unlock(&noteMutex);
@@ -190,4 +193,26 @@ int Keyboard::getInterval(enum note n) {
 
 	}
 	return 0;
+}
+
+void Keyboard::setMonophonic(bool monophonic){
+    this->monophonic = monophonic;
+}
+
+void Keyboard::clearAllBut(enum note n) {
+    pthread_mutex_lock(&lastNoteMutex);
+    pthread_mutex_lock(&noteMutex);
+    vector<Note*>::iterator it;
+    it = notes.begin();
+    while(it != notes.end()) {
+        delete (*it);
+        it = notes.erase(it);
+    }
+    map<enum note, Note*>::iterator mit;
+    for(mit = lastNoteFor.begin(); mit != lastNoteFor.end(); ++mit) {
+        if(mit->first != n)
+            lastNoteFor.erase(mit->first);
+    }
+    pthread_mutex_unlock(&noteMutex);
+    pthread_mutex_unlock(&lastNoteMutex);
 }

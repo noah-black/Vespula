@@ -55,6 +55,7 @@ class Synthesizer : public QMainWindow {
 		void changeWaveform(int value);
 		void setTranspose(int value);
 		void setLevel(int i);
+		void setMonophonic(int state);
 	private:
 		void prepareGui();
         WaveTable waveTable;
@@ -88,6 +89,8 @@ class Synthesizer : public QMainWindow {
         QLabel levelSelectLabel;
 		QSlider levelSelect;
         LooperBox looperBox;
+        QCheckBox monophonicEnabled;
+        QLabel monophonicLabel;
 
 	    QGridLayout layout;
 

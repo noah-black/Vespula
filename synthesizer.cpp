@@ -21,7 +21,9 @@ Synthesizer::Synthesizer() :
     transposeSelect(&mainArea),
     levelSelectLabel(&mainArea),
     levelSelect(&mainArea),
-    looperBox(&keyboard, &normalKeyboard, &looper, &mainArea)
+    looperBox(&keyboard, &normalKeyboard, &looper, &mainArea),
+    monophonicEnabled(&mainArea),
+    monophonicLabel(&mainArea)
 {
     level = 0.01;
     initMaps();
@@ -31,7 +33,7 @@ Synthesizer::Synthesizer() :
 }
 
 void Synthesizer::start() {
-    int sample;
+    int sample, i;
     state = RUNNING;
     while(state == RUNNING) {
         sample = (int)(floor((main->getSample()*CEILING) * level)+0.5);
@@ -51,18 +53,24 @@ void Synthesizer::prepareGui() {
     levelSelect.setRange(0, 100);
     levelSelect.setValue(10);
 
+    monophonicLabel.setText("Monophonic");
+
     layout.addWidget(&looperBox, 0, 0, 1, 2);
     layout.addWidget(&waveformSelectLabel, 1, 0, 1, 1);
     layout.addWidget(&waveformSelect, 1, 1, 1, 1);
     layout.addWidget(&transposeSelectLabel, 2, 0, 1, 1);
     layout.addWidget(&transposeSelect, 2, 1, 1, 1);
-    layout.addWidget(&levelSelectLabel, 2, 2, 1, 1);
-    layout.addWidget(&levelSelect, 0, 2, 2, 1);
-    layout.addWidget(&envelopeBox, 0, 3, 3, 1);
-    layout.addWidget(&vibratoBox, 0, 4, 3, 1);
-    layout.addWidget(&fmBox, 0, 5, 3, 1);
-    layout.addWidget(&freeEnvelopeBox, 3, 0, 1, 1);
-    layout.addWidget(&lfoBox, 3, 1, 1, 1);
+    layout.addWidget(&monophonicLabel, 3, 0, 1, 1);
+    layout.addWidget(&monophonicEnabled, 3, 1, 1, 1);
+
+    layout.addWidget(&levelSelectLabel, 3, 2, 1, 1);
+    layout.addWidget(&levelSelect, 0, 2, 3, 1);
+    layout.addWidget(&envelopeBox, 0, 3, 4, 1);
+    layout.addWidget(&vibratoBox, 0, 4, 4, 1);
+    layout.addWidget(&fmBox, 0, 5, 4, 1);
+
+    layout.addWidget(&freeEnvelopeBox, 4, 0, 1, 1);
+    layout.addWidget(&lfoBox, 4, 1, 1, 1);
 
     mainArea.setLayout(&layout);
     setCentralWidget(&mainArea);
@@ -79,6 +87,8 @@ void Synthesizer::prepareGui() {
 
     QObject::connect(&levelSelect, SIGNAL(valueChanged(int)), this, SLOT(setLevel(int)));
     QObject::connect(&levelSelect, SIGNAL(valueChanged(int)), this, SLOT(setFocus()));
+
+    QObject::connect(&monophonicEnabled, SIGNAL(stateChanged(int)), this, SLOT(setMonophonic(int)));
 }
 
 void Synthesizer::keyPressEvent(QKeyEvent *event) {
@@ -138,4 +148,8 @@ void Synthesizer::initMaps() {
     keyMap[Qt::Key_K] = n8;
     keyMap[Qt::Key_O] = s8;
     keyMap[Qt::Key_L] = n9;
+}
+
+void Synthesizer::setMonophonic(int state) {
+    keyboard->setMonophonic(state == Qt::Checked);
 }

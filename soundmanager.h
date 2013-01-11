@@ -20,6 +20,7 @@ class SoundManager{
 	    char *buffer;
         int bufferIndex;
         int counter; // debugging thing, remove
+        int lastSample;
 
 		snd_pcm_uframes_t frames;
 		snd_pcm_t *handle;

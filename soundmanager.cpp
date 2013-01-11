@@ -6,7 +6,8 @@ SoundManager::SoundManager() {
     bufferIndex = 0;
     counter = 0;
 }
-void SoundManager::writeSample(int sample) {
+void SoundManager::writeSample(int sample) { // returns frames written (usually zero)
+    lastSample = sample;
     counter++;
 	int rc = frames;
     sample = sample > CEILING ? CEILING : sample;
@@ -20,7 +21,6 @@ void SoundManager::writeSample(int sample) {
         rc = snd_pcm_writei(handle, buffer, frames);
 		while(rc == -EPIPE) {
             rc = snd_pcm_recover(handle, rc, 1);
-            printf("underrun\n");
             if(rc != 0) {
 			    fprintf(stderr, "Could not recover from underrun!\n");
                 exit(1);
@@ -58,6 +58,10 @@ void SoundManager::configureSoundDevice() {
 	snd_pcm_hw_params_set_format(handle, hw_params, SND_PCM_FORMAT_S16_LE);
 	snd_pcm_hw_params_set_channels(handle, hw_params, 2);
 	snd_pcm_hw_params_set_rate_near(handle, hw_params, &val, 0);
+    while(val != SAMPLE_RATE) {
+        printf("unable to set sample rate, retrying: %s\n", snd_strerror(rc));
+	    snd_pcm_hw_params_set_rate_near(handle, hw_params, &val, 0);
+    }
 	rc = snd_pcm_hw_params_set_buffer_size_near(handle, hw_params, &hw_buffer);
     if (rc < 0) {
         fprintf(stderr, "unable to set buffer: %s\n", snd_strerror(rc));
@@ -97,7 +101,7 @@ void SoundManager::configureSoundDevice() {
 }
 
 SoundManager::~SoundManager() {
-    delete[] buffer;
     snd_pcm_drain(handle);
     snd_pcm_close(handle);
+    delete[] buffer;
 }
