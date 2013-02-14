@@ -9,10 +9,12 @@ Synthesizer::Synthesizer() :
     vibrato(&keyboard, 0.1, 0),
     chorus(&vibrato, 0.2, 1000),
     lpf(&vibrato),
+    filter(&vibrato),
     mainArea(this),
     envelopeBox(noteFactory.getEnvelope(0), &mainArea),
     freeEnvelopeBox(noteFactory.getEnvelope(1), &mainArea),
     lfoBox(noteFactory.getLfo(0), &mainArea),
+    filterBox(&filter, &mainArea),
     vibratoBox(&vibrato, &mainArea),
     fmBox(&noteFactory, &mainArea),
     waveformSelectLabel(&mainArea),
@@ -23,22 +25,25 @@ Synthesizer::Synthesizer() :
     levelSelect(&mainArea),
     looperBox(&keyboard, &normalKeyboard, &looper, &mainArea),
     monophonicEnabled(&mainArea),
-    monophonicLabel(&mainArea)
+    monophonicLabel(&mainArea),
+    generator(&keyboard, &noteFactory, &waveTable)
 {
     level = 0.01;
     initMaps();
     state = NOT_RUNNING;
     main = &vibrato;
+    //main = &filter;
     prepareGui();
 }
 
 void Synthesizer::start() {
-    int sample, i;
+    int sample;
     state = RUNNING;
     while(state == RUNNING) {
         sample = (int)(floor((main->getSample()*CEILING) * level)+0.5);
         soundManager.writeSample(sample);
         noteFactory.advanceLfos();
+        generator.advance();
     }
 }
 
@@ -71,6 +76,7 @@ void Synthesizer::prepareGui() {
 
     layout.addWidget(&freeEnvelopeBox, 4, 0, 1, 1);
     layout.addWidget(&lfoBox, 4, 1, 1, 1);
+    layout.addWidget(&filterBox, 4, 2, 1, 1);
 
     mainArea.setLayout(&layout);
     setCentralWidget(&mainArea);
@@ -121,7 +127,7 @@ void Synthesizer::done() {
 }
 
 void Synthesizer::changeWaveform(int i) {
-    noteFactory.setWaveform(waveformSelect.getWaveformType(i));
+    keyboard->setWaveform(waveformSelect.getWaveformType(i));
 }
 
 void Synthesizer::setTranspose(int i) {

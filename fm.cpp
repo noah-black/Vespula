@@ -1,7 +1,7 @@
 #include "fm.h"
 #include <stdio.h>
 
-FM::FM(WaveTable *waveTable, waveformType *waveform, double freq, double *depth) : Oscillator(waveTable, waveform, freq) {
+FM::FM(WaveTable *waveTable, waveformType waveform, double freq, double *depth) : Oscillator(waveTable, waveform, freq) {
 	this->depth = depth;
 	carrierPhase = 0;
     envelopeModifier = 0;
@@ -13,7 +13,7 @@ double FM::getSample() {
     currentDepth = *depth + envelopeModifier + (getLfoPosition()*10000);
     currentDepth = currentDepth < 0 ? 0 : currentDepth;
     freq = SAMPLE_RATE/period;
-    in = (waveTable->*(*waveform))(phase, SAMPLE_RATE/period);
+    in = ((waveTable)->*(waveform))(phase, SAMPLE_RATE/period);
 	out = sin(2*PI*(carrierPhase/period));
 	carrierPhase = fmod((carrierPhase+1+(((currentDepth)*in)/freq)), period);
     advance();

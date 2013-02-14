@@ -3,18 +3,24 @@
 
 using namespace std;
 
-Note::Note(Oscillator *oscillator, Envelope *envelope, double freq, enum note baseNote) : envelope(envelope) {
+Note::Note(Oscillator *oscillator, Envelope *envelope, double freq, enum note baseNote, double velocity) : envelope(envelope) {
     this->oscillator = oscillator;
 	this->freq = freq;
 	this->baseNote = baseNote;
+	this->velocity = velocity;
 	state = held;
 	period = SAMPLE_RATE/freq;
 	samplesElapsed = 0;
 	releaseSample = -1;
+    killCounter = 0;
+    killed = false;
 }
 
 Note::~Note() {
     delete oscillator;
+    vector<EnvelopeConnection*>::iterator it;
+    for(it = envelopeConnections.begin(); it != envelopeConnections.end(); ++it)
+        delete (*it);
 }
 
 void Note::setFreq(double freq) {
@@ -48,11 +54,10 @@ void Note::setReleaseSample(int releaseSample) {
 }
 
 void Note::release() {
-	if (this->isReleased()) 
+	if(state == released)
 		return;
-	state = released;
+    state = released;
 	releaseSample = samplesElapsed;
-
 }
 
 bool Note::isReleased() {
@@ -60,28 +65,54 @@ bool Note::isReleased() {
 }
 
 bool Note::isDead() {
+	if(killed && killCounter > killTime) {
+        return true;
+    }
 	if(state != released)
 		return false;
-	else 
-        return envelope->isDead(samplesElapsed, releaseSample);
+    return envelope->isDead(samplesElapsed, releaseSample);
 }
 
 void Note::advance() {
     vector<EnvelopeConnection*>::const_iterator iter;
     for (iter=envelopeConnections.begin(); iter != envelopeConnections.end(); ++iter) {
-        isReleased() ? (*iter)->notify(samplesElapsed, releaseSample) : (*iter)->notify(samplesElapsed);
+        isReleased() ? (*iter)->notify(samplesElapsed, releaseSample, velocity) : (*iter)->notify(samplesElapsed, velocity);
     }
     samplesElapsed++;
+    if(state != released && releaseSample > -1 && samplesElapsed > releaseSample){
+        state = released;
+    }
 }
 
 double Note::getSample() {
     double levelEnvelope, sample;
-    levelEnvelope = isReleased() ? envelope->getFactor(samplesElapsed, releaseSample) : envelope->getFactor(samplesElapsed);
-    sample = oscillator->getSample()*levelEnvelope;
+    levelEnvelope = (state == released) ? envelope->getFactor(samplesElapsed, releaseSample) : envelope->getFactor(samplesElapsed);
+    sample = oscillator->getSample()*levelEnvelope*velocity;
+    if(killed) {
+        sample = killTime == 0 ? 0 : sample*((double)(killTime-killCounter)/(double)killTime);
+        killCounter++;
+    }
     advance();
     return sample;
 }
 
 void Note::addEnvelopeConnection(EnvelopeConnection *envelopeConnection) {
     envelopeConnections.push_back(envelopeConnection);
+}
+
+Oscillator *Note::getOscillator() {
+    return oscillator;
+}
+
+void Note::kill(int killTime) {
+    this->killTime = killTime;
+    killed = true;
+}
+
+bool Note::isKilled() {
+    return killed;
+}
+
+void Note::setWaveform(waveformType waveform) {
+    oscillator->setWaveform(waveform);
 }

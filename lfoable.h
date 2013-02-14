@@ -6,6 +6,7 @@
 
 class Lfoable {
     public:
+        ~Lfoable();
         void addLfoConnection(LfoConnection* lfoConnection);
         double getLfoPosition();
     private:

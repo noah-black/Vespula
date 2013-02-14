@@ -20,7 +20,11 @@ using namespace std;
 class NoteFactory {
 	public:
         NoteFactory(WaveTable *waveTable);
-        Note *getNote(double freq, enum note n);
+        ~NoteFactory();
+        Note *getNote(double freq, enum note n, double velocity = 1);
+        Oscillator *getOscillator(double freq);
+        Oscillator *getOscillator(double freq, waveformType waveform);
+        void prepareNote(Note *note);
 		void setWaveform(waveformType waveform);
 		void setLevel(double i);
 		void setFmDepth(double i);
@@ -29,6 +33,7 @@ class NoteFactory {
         void setFmEnvAmount(double i);
         void setFmLfoEnabled(bool fmLfoEnabled);
         void setFmLfoAmount(double i);
+		waveformType getWaveform();
         void advanceLfos();
         Envelope *getEnvelope(int i);
         LFO *getLfo(int i);

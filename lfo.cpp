@@ -2,8 +2,7 @@
 #include <stdio.h>
 
 LFO::LFO(WaveTable *waveTable) :
-    waveform(&WaveTable::sawtooth),
-    oscillator(waveTable, &waveform, 0.5)
+    oscillator(waveTable, &WaveTable::sawtooth, 0.5)
 { 
     position = 0;
 }
@@ -22,5 +21,5 @@ void LFO::setFreq(double freq) {
 }
 
 void LFO::setWaveform(waveformType waveform) {
-    this->waveform = waveform;
+    oscillator.setWaveform(waveform);
 }

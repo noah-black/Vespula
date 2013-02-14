@@ -15,7 +15,6 @@ class LFO {
         void setFreq(double freq);
         void setWaveform(waveformType waveform);
     private:
-        waveformType waveform;
         Oscillator oscillator;
         double position;
 };

@@ -24,6 +24,8 @@ class Looper : public Keyboard {
 		void releaseNote(enum note n);
         void setDuration(double value);
         void clear();
+    protected:
+        void releaseNoteInternal(enum note n);
 	private:
    		pthread_mutex_t mutexsum;
    		pthread_mutex_t savedNoteMutex;

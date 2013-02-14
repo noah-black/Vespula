@@ -19,7 +19,6 @@ class SoundManager{
 		void configureSoundDevice();
 	    char *buffer;
         int bufferIndex;
-        int counter; // debugging thing, remove
         int lastSample;
 
 		snd_pcm_uframes_t frames;

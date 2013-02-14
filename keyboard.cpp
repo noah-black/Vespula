@@ -12,6 +12,11 @@ noteFactory(noteFactory)
     pthread_mutex_init(&noteMutex, NULL);
     pthread_mutex_init(&lastNoteMutex, NULL);
     monophonic = false;
+    voices = 20;
+}
+
+Keyboard::~Keyboard() {
+    clearAll();
 }
 
 void Keyboard::initMaps() {
@@ -20,17 +25,33 @@ void Keyboard::initMaps() {
 }
 
 void Keyboard::playNote(enum note n) {
-    double freq = freqs[getTransposition(n)]*pow(2.0, octave+((double)transpose)/12);
+    double freq = getFreq(n);
     Note *note;
     pthread_mutex_lock(&lastNoteMutex);
     releaseNoteInternal(n);
     pthread_mutex_unlock(&lastNoteMutex);
+    if(monophonic)
+        clearAll();
     note = noteFactory->getNote(freq, n);
 	lastNoteFor[n] = note;
-    if(monophonic)
-        clearAllBut(n);
     pthread_mutex_lock(&noteMutex);
 	notes.push_back(note);
+    cullNotes();
+    pthread_mutex_unlock(&noteMutex);
+}
+
+double Keyboard::getFreq(enum note n, int octave) {
+    return freqs[getTransposition(n)]*pow(2.0, octave+((double)transpose)/12);
+}
+
+double Keyboard::getFreq(enum note n) {
+    return getFreq(n, octave);
+}
+
+void Keyboard::playNote(Note *note) {
+    pthread_mutex_lock(&noteMutex);
+	notes.push_back(note);
+    cullNotes();
     pthread_mutex_unlock(&noteMutex);
 }
 
@@ -49,21 +70,24 @@ void Keyboard::releaseNoteInternal(enum note n) {
 
 double Keyboard::getSample() {
 	double sample = 0;
-	vector<Note*>::iterator it;
+	deque<Note*>::iterator it;
     pthread_mutex_lock(&noteMutex);
+    pthread_mutex_lock(&lastNoteMutex);
 	it = notes.begin();
 	while(it != notes.end()) {
 		sample += (*it)->getSample();
 		if((*it)->isDead()) {
-            pthread_mutex_lock(&lastNoteMutex);
-            releaseNoteInternal((*it)->getNote());
+            enum note n;
+            n = (*it)->getNote();
+            if(lastNoteFor.find(n) != lastNoteFor.end() && (lastNoteFor[n] == (*it)))
+                lastNoteFor.erase(n);
             delete (*it);
 			it = notes.erase(it);
-            pthread_mutex_unlock(&lastNoteMutex);
         }
 		else
 			it++;
 	}
+    pthread_mutex_unlock(&lastNoteMutex);
     pthread_mutex_unlock(&noteMutex);
 	return sample;
 }
@@ -80,7 +104,7 @@ void Keyboard::setTransposeInKey(int i) {
 	enum note oldNote, newNote;
 	double oldFreq, newFreq;
 	int oldTransposeInKey = transposeInKey;
-	vector<Note*>::iterator it;
+	deque<Note*>::iterator it;
 	transposeInKey = i;
     pthread_mutex_lock(&noteMutex);
 	for(it = notes.begin(); it != notes.end(); ++it) {
@@ -199,20 +223,36 @@ void Keyboard::setMonophonic(bool monophonic){
     this->monophonic = monophonic;
 }
 
-void Keyboard::clearAllBut(enum note n) {
-    pthread_mutex_lock(&lastNoteMutex);
+void Keyboard::clearAll() {
     pthread_mutex_lock(&noteMutex);
-    vector<Note*>::iterator it;
+    pthread_mutex_lock(&lastNoteMutex);
+    lastNoteFor.clear();
+    deque<Note*>::iterator it;
     it = notes.begin();
     while(it != notes.end()) {
         delete (*it);
         it = notes.erase(it);
     }
-    map<enum note, Note*>::iterator mit;
-    for(mit = lastNoteFor.begin(); mit != lastNoteFor.end(); ++mit) {
-        if(mit->first != n)
-            lastNoteFor.erase(mit->first);
-    }
-    pthread_mutex_unlock(&noteMutex);
     pthread_mutex_unlock(&lastNoteMutex);
+    pthread_mutex_unlock(&noteMutex);
+}
+
+void Keyboard::cullNotes() {
+    deque<Note*>::iterator it;
+    unsigned int i = notes.size();
+    for(it = notes.begin(); i > voices; ++it) {
+        int killTime;
+        killTime = i-voices >= 10 ? 1 : 4000 * (1-((double)((i-voices)/10)));
+        (*it)->kill(killTime);
+        i--;
+    }
+}
+
+void Keyboard::setWaveform(waveformType waveform) {
+    noteFactory->setWaveform(waveform);
+    pthread_mutex_lock(&noteMutex);
+    deque<Note*>::iterator it;
+    for(it = notes.begin(); it != notes.end(); ++it)
+        (*it)->setWaveform(waveform);
+    pthread_mutex_unlock(&noteMutex);
 }

@@ -11,7 +11,7 @@ using namespace std;
 
 class FM : public Oscillator, public Modulatable, public Lfoable {
 	public:
-		FM(WaveTable *waveTable, waveformType* waveform, double freq, double *depth);
+		FM(WaveTable *waveTable, waveformType waveform, double freq, double *depth);
 		double getSample();
         void setFreq(double freq);
 		void setDepth(double i);

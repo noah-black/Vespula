@@ -10,8 +10,9 @@ using namespace std;
 
 class Oscillator {
 	public:
-        Oscillator(WaveTable *waveTable, waveformType *waveform, double freq);
+        Oscillator(WaveTable *waveTable, waveformType waveform, double freq);
         virtual void setFreq(double freq);
+        void setWaveform(waveformType waveform);
         virtual double getSample();
     protected:
         WaveTable *waveTable;
@@ -19,6 +20,7 @@ class Oscillator {
         double phase;
         double period;
         pthread_mutex_t setFreqMutex;
-        waveformType *waveform;
+        pthread_mutex_t setWaveformMutex;
+        waveformType waveform;
 };
 #endif

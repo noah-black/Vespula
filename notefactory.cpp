@@ -16,23 +16,51 @@ NoteFactory::NoteFactory(WaveTable *waveTable) :
     currentSound = &WaveTable::sawtooth;
 }
 
-Note *NoteFactory::getNote(double freq, enum note n) {
-    Note *note;
+Note *NoteFactory::getNote(double freq, enum note n, double velocity) {
+    Note *note = new Note(getOscillator(freq), envelopes[0], freq, n, velocity);
+    prepareNote(note);
+    return note;
+}
+
+NoteFactory::~NoteFactory() {
+    vector<Envelope*>::iterator eit;
+    vector<LFO*>::iterator lit;
+    for(eit = envelopes.begin(); eit != envelopes.end(); ++eit) {
+        delete (*eit);
+    }
+    for(lit = lfos.begin(); lit != lfos.end(); ++lit) {
+        delete (*lit);
+    }
+}
+
+Oscillator *NoteFactory::getOscillator(double freq) {
+    return getOscillator(freq, currentSound);
+}
+
+Oscillator *NoteFactory::getOscillator(double freq, waveformType waveform) {
+    Oscillator *oscillator;
     if(fmEnabled) {
-        FM *fm = new FM(waveTable, &currentSound, freq, &fmDepth);
-	    note = new Note(fm, envelopes[0], freq, n);
+        FM *fm = new FM(waveTable, waveform, freq, &fmDepth);
         if(fmLfoEnabled)
             fm->addLfoConnection(new LfoConnection(lfos[0], &fmLfoAmount));
-        if(fmEnvelopeEnabled)
-            note->addEnvelopeConnection(new EnvelopeConnection(envelopes[1], fm, &fmEnvAmount));
+        oscillator = (Oscillator*)fm;
     }
     else
-	    note = new Note(new Oscillator(waveTable, &currentSound, freq), envelopes[0], freq, n);
-    return note;
+	    oscillator = new Oscillator(waveTable, waveform, freq);
+    return oscillator;
+}
+
+void NoteFactory::prepareNote(Note *note) {
+        if(fmEnabled && fmEnvelopeEnabled)
+            note->addEnvelopeConnection(new EnvelopeConnection(envelopes[1], (FM*)note->getOscillator(), &fmEnvAmount));
 }
 
 void NoteFactory::setWaveform(waveformType waveform) {
     currentSound = waveform;
+}
+
+waveformType NoteFactory::getWaveform() {
+    return currentSound;
 }
 
 void NoteFactory::setFmDepth(double i) {

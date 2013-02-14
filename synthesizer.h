@@ -7,7 +7,7 @@
 #include <QMainWindow>
 #include <QObject> 
 #include <QGroupBox> 
-#include <QCheckBox>
+#include <QCheckBox> 
 #include <QKeyEvent>
 #include <QPushButton>
 #include <QComboBox>
@@ -35,6 +35,9 @@
 #include "wavetable.h"
 #include "waveformcombobox.h"
 #include "looperbox.h"
+#include "musicgenerator.h"
+#include "filter.h"
+#include "filterbox.h"
 
 using namespace std;
 
@@ -68,6 +71,7 @@ class Synthesizer : public QMainWindow {
 		Vibrato vibrato;
 		Chorus chorus;
 		LPF lpf;
+        Filter filter;
 		void initMaps();
 		map<int, enum note> keyMap;
         enum program_state state;
@@ -77,6 +81,7 @@ class Synthesizer : public QMainWindow {
 		EnvelopeBox envelopeBox;
 		EnvelopeBox freeEnvelopeBox;
 		LfoBox lfoBox;
+		FilterBox filterBox;
         
         VibratoBox vibratoBox;
 
@@ -93,6 +98,7 @@ class Synthesizer : public QMainWindow {
         QLabel monophonicLabel;
 
 	    QGridLayout layout;
+        MusicGenerator generator;
 
         double level;
 

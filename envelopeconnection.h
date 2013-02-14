@@ -9,8 +9,8 @@ using namespace std;
 class EnvelopeConnection {
     public:
         EnvelopeConnection(Envelope *envelope, Modulatable *target, double *amount);
-        void notify(int samplesElapsed);
-        void notify(int samplesElapsed, int releaseSample);
+        void notify(int samplesElapsed, double velocity);
+        void notify(int samplesElapsed, int releaseSample, double velocity);
     private:
         Envelope *envelope;
         Modulatable *target;
