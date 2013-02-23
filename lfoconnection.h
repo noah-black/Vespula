@@ -7,11 +7,12 @@ using namespace std;
 
 class LfoConnection {
     public:
-        LfoConnection(LFO *target, double *amount);
+        LfoConnection(LFO *target, double amount);
+        void setAmount(double amount);
         double getPos();
     private:
         LFO *target;
-        double *amount;
+        double amount;
 };
 
 #endif

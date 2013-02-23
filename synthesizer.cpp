@@ -9,12 +9,11 @@ Synthesizer::Synthesizer() :
     vibrato(&keyboard, 0.1, 0),
     chorus(&vibrato, 0.2, 1000),
     lpf(&vibrato),
-    filter(&vibrato),
     mainArea(this),
     envelopeBox(noteFactory.getEnvelope(0), &mainArea),
     freeEnvelopeBox(noteFactory.getEnvelope(1), &mainArea),
     lfoBox(noteFactory.getLfo(0), &mainArea),
-    filterBox(&filter, &mainArea),
+    filterBox(noteFactory.getFilter(0), noteFactory.getLfo(0), &noteFactory, &mainArea),
     vibratoBox(&vibrato, &mainArea),
     fmBox(&noteFactory, &mainArea),
     waveformSelectLabel(&mainArea),
@@ -32,7 +31,7 @@ Synthesizer::Synthesizer() :
     initMaps();
     state = NOT_RUNNING;
     main = &vibrato;
-    //main = &filter;
+    //effects.push_back(noteFactory.getFilter(0));
     prepareGui();
 }
 
@@ -41,6 +40,9 @@ void Synthesizer::start() {
     state = RUNNING;
     while(state == RUNNING) {
         sample = (int)(floor((main->getSample()*CEILING) * level)+0.5);
+        for(vector<SoundEffect*>::iterator it = effects.begin(); it != effects.end(); ++it) {
+            sample = (*it)->getSample(sample);
+        }
         soundManager.writeSample(sample);
         noteFactory.advanceLfos();
         generator.advance();

@@ -5,7 +5,7 @@
 #include <map>
 #include <string>
 #include <math.h>
-#include <stdio.h>
+#include <stdio.h> 
 #include "fm.h"
 #include "soundprocessor.h"
 #include "oscillators.h"
@@ -13,7 +13,9 @@
 #include "note.h"
 #include "lfo.h"
 #include "lfoconnection.h"
+#include "filter.h"
 #include "wavetable.h"
+#include "filterproxy.h"
 
 using namespace std;
 
@@ -33,10 +35,12 @@ class NoteFactory {
         void setFmEnvAmount(double i);
         void setFmLfoEnabled(bool fmLfoEnabled);
         void setFmLfoAmount(double i);
+        void setFilterEnvAmount(double i);
 		waveformType getWaveform();
         void advanceLfos();
         Envelope *getEnvelope(int i);
         LFO *getLfo(int i);
+        Filter *getFilter(int i);
 	protected:
         WaveTable *waveTable;
         double fmDepth;
@@ -47,10 +51,15 @@ class NoteFactory {
         bool fmEnvelopeEnabled;
         bool fmLfoEnabled;
 
+        double filterEnvAmount;
+
+        bool filterEnvEnabled;
+
         waveformType currentSound;
 
         vector<Envelope*> envelopes; 
         vector<LFO*> lfos; 
+        vector<Filter*> filters; 
 };
 
 #endif

@@ -1,7 +1,6 @@
 #ifndef ENVELOPE_H
 #define ENVELOPE_H
 
-#include "modulator.h"
 #include "soundprocessor.h"
 
 using namespace std;

@@ -6,7 +6,7 @@ TEMPLATE = app
 TARGET = 
 DEPENDPATH += .
 INCLUDEPATH += .
-LIBS += -lasound -lfftw3
+LIBS += -lasound
 QMAKE_CXXFLAGS_DEBUG += -pg
 QMAKE_LFLAGS_DEBUG += -pg
 
@@ -17,6 +17,7 @@ HEADERS += chorus.h \
            envelopeconnection.h \
            filter.h \
            filterbox.h \
+           filterproxy.h \
            fm.h \
            fmbox.h \
            keyboard.h \
@@ -28,8 +29,6 @@ HEADERS += chorus.h \
            looperbox.h \
            lpf.h \
            modulatable.h \
-           modulator.h \
-           modulatorlistener.h \
            musicgenerator.h \
            note.h \
            notefactory.h \
@@ -48,6 +47,7 @@ SOURCES += chorus.cpp \
            envelopeconnection.cpp \
            filter.cpp \
            filterbox.cpp \
+           filterproxy.cpp \
            fm.cpp \
            fmbox.cpp \
            keyboard.cpp \
@@ -59,7 +59,6 @@ SOURCES += chorus.cpp \
            looperbox.cpp \
            lpf.cpp \
            main.cpp \
-           modulator.cpp \
            musicgenerator.cpp \
            note.cpp \
            notefactory.cpp \

@@ -20,3 +20,10 @@ double Lfoable::getLfoPosition() {
     }
     return lfoModifier;
 }
+
+void Lfoable::setLfoAmount(double amount) {
+    vector<LfoConnection*>::iterator it;
+    for(it = lfoConnections.begin(); it != lfoConnections.end(); ++it) {
+        (*it)->setAmount(amount);
+    }
+}

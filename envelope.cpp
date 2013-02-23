@@ -11,7 +11,7 @@ double Envelope::adsFactor(int samplesElapsed) {
 	if (samplesElapsed < (attack * SAMPLE_RATE))
 		return ((double)samplesElapsed) / (attack * SAMPLE_RATE);
 	if (samplesElapsed < ((decay+attack) * SAMPLE_RATE))
-		return 1 - (((double)(samplesElapsed-(attack*SAMPLE_RATE)) / (decay * SAMPLE_RATE)) * (1-sustain));
+		return sustain + (pow(1-((double)(samplesElapsed-(attack*SAMPLE_RATE)) / (decay * SAMPLE_RATE)), 2));
 	return sustain;
 }
 

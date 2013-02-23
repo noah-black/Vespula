@@ -1,36 +1,26 @@
 #ifndef FILTER_H
 #define FILTER_H
 
-#include <fftw3.h>
-#include <soundprocessor.h>
+#include <soundeffect.h>
+#include <lfoable.h>
 #include <stdlib.h>
 #include <pthread.h>
 
-
-#define WINDOW_SIZE 16
-
-class Filter : public SoundProcessor {
+class Filter : public SoundEffect, public Lfoable {
     public:
-        Filter(SoundProcessor*);
-        ~Filter();
-        double getSample();
+        Filter();
+        virtual double getSample(double in);
         void setCutoff(double cutoff);
         void setResonance(double resonance);
+        virtual double getCutoff();
+        virtual double getResonance();
+    protected:
+        double resonance, cutoff;
+        void updateCoef();
 	private:
-        void prepare();
-        void recover();
-        void swap(int i, int j);
-        fftw_complex *f;
-        fftw_plan toF;
-        fftw_plan toT;
-        vector<double> in;
-        vector<double> out;
-        SoundProcessor *proc;
+        double getCutoffHz(double cutoff);
         pthread_mutex_t myMutex;
-        double cutoff;
-        double resonance;
-        double width;
-        double bin_size;
+        double a0, a1, a2, b1, b0, i1, i2, o1, o2, i1p, i2p, o1p, o2p, ql, qp, a0p, a1p, a2p, b0p, b2p;
 };
 
 #endif

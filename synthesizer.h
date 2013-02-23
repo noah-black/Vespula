@@ -71,9 +71,9 @@ class Synthesizer : public QMainWindow {
 		Vibrato vibrato;
 		Chorus chorus;
 		LPF lpf;
-        Filter filter;
 		void initMaps();
 		map<int, enum note> keyMap;
+        vector<SoundEffect*> effects;
         enum program_state state;
 
 		QFrame mainArea;

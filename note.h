@@ -2,6 +2,7 @@
 #define NOTE_H
 
 #include "soundprocessor.h"
+#include "soundeffect.h"
 #include "envelope.h"
 #include "oscillator.h"
 #include "envelopeconnection.h"
@@ -32,12 +33,14 @@ class Note : public SoundProcessor {
 		double getFreq();
 		enum note getNote();
 		void setNote(enum note);
-		double getSample();
+		virtual double getSample();
         void addEnvelopeConnection(EnvelopeConnection *envelopeConnection);
         Oscillator *getOscillator();
         void kill(int killTime);
+        void addNoteEffect(SoundEffect *effect);
 	protected:
         vector<EnvelopeConnection*> envelopeConnections;
+        vector<SoundEffect*> noteEffects;
 		virtual void advance();
 		enum note baseNote;
 		enum note_state state;
@@ -52,4 +55,5 @@ class Note : public SoundProcessor {
         Oscillator *oscillator;
         Envelope *envelope;
 };
+
 #endif

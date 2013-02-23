@@ -21,6 +21,9 @@ Note::~Note() {
     vector<EnvelopeConnection*>::iterator it;
     for(it = envelopeConnections.begin(); it != envelopeConnections.end(); ++it)
         delete (*it);
+    vector<SoundEffect*>::iterator eit;
+    for(eit = noteEffects.begin(); eit != noteEffects.end(); ++eit)
+        delete (*eit);
 }
 
 void Note::setFreq(double freq) {
@@ -92,6 +95,9 @@ double Note::getSample() {
         sample = killTime == 0 ? 0 : sample*((double)(killTime-killCounter)/(double)killTime);
         killCounter++;
     }
+    for(vector<SoundEffect*>::iterator it = noteEffects.begin(); it != noteEffects.end(); ++it) {
+        sample = (*it)->getSample(sample);
+    }
     advance();
     return sample;
 }
@@ -115,4 +121,8 @@ bool Note::isKilled() {
 
 void Note::setWaveform(waveformType waveform) {
     oscillator->setWaveform(waveform);
+}
+
+void Note::addNoteEffect(SoundEffect *effect) {
+    noteEffects.push_back(effect);
 }

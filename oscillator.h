@@ -8,7 +8,7 @@
 
 using namespace std;
 
-class Oscillator {
+class Oscillator : public SoundProcessor {
 	public:
         Oscillator(WaveTable *waveTable, waveformType waveform, double freq);
         virtual void setFreq(double freq);
