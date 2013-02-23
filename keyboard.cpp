@@ -12,7 +12,7 @@ noteFactory(noteFactory)
     pthread_mutex_init(&noteMutex, NULL);
     pthread_mutex_init(&lastNoteMutex, NULL);
     monophonic = false;
-    voices = 20;
+    voices = 15;
 }
 
 Keyboard::~Keyboard() {
@@ -242,7 +242,7 @@ void Keyboard::cullNotes() {
     unsigned int i = notes.size();
     for(it = notes.begin(); i > voices; ++it) {
         int killTime;
-        killTime = i-voices >= 10 ? 1 : 4000 * (1-((double)((i-voices)/10)));
+        killTime = i-voices >= 10 ? 500 : 1000 + 1000 * (1-((double)((i-voices)/10)));
         (*it)->kill(killTime);
         i--;
     }
