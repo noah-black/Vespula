@@ -1,5 +1,4 @@
 #include "notefactory.h"
-using namespace std;
 
 NoteFactory::NoteFactory(WaveTable *waveTable) : 
     waveTable(waveTable)
@@ -27,7 +26,6 @@ Note *NoteFactory::getNote(double freq, enum note n, double velocity) {
         note->addEnvelopeConnection(new EnvelopeConnection(envelopes[1], filter, &filterEnvAmount));
         note->addNoteEffect(filter);
     }
-    else 
     
     prepareNote(note);
     return note;
