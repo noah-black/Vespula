@@ -3,7 +3,7 @@ Vespula
 
 A digital synthesizer
 
-Vespula is a digital synthesizer. It is capable of looping a sequence of notes and transposing notes while preserving key (by adjusting intervals). It has vibrato, frequency modulation and low pass filter effects. It has an LFO (Low Frequency Oscillator) for modulating FM depth and filter cutoff, and two standard ASDR envelopes: one for controlling the level of the main output signal, and another for controlling filter cutoff and FM depth.
+Vespula is a digital synthesizer for Linux. It is capable of looping a sequence of notes and transposing notes while preserving key (by adjusting intervals). It has vibrato, frequency modulation and low pass filter effects. It has an LFO (Low Frequency Oscillator) for modulating FM depth and filter cutoff, and two standard ASDR envelopes: one for controlling the level of the main output signal, and another for controlling filter cutoff and FM depth.
 
 Installation:
 
