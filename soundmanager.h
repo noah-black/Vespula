@@ -3,26 +3,27 @@
 
 #define SAMPLE_RATE 44100.0
 
-#include <alsa/asoundlib.h>
+#include <AudioToolbox/AudioToolbox.h>
 #include "soundprocessor.h"
 
-using namespace std;
 
-class SoundManager{
-	public:
-		SoundManager();
-		~SoundManager();
-        void writeSample(int sample);
-		void done();
-	private:
-	    snd_pcm_uframes_t hw_buffer;
-		void configureSoundDevice();
-	    char *buffer;
-        int bufferIndex;
-        int lastSample;
+class SoundManager {
+  public:
+    SoundManager();
+    ~SoundManager();
+    void writeSample(int sample);
+  private:
+    void configureSoundDevice();
+    static void AudioQueueCallback(void *custom_data, AudioQueueRef queue, AudioQueueBufferRef buffer);
 
-		snd_pcm_uframes_t frames;
-		snd_pcm_t *handle;
+    AudioQueueRef queue;
+    static const int kNumberBuffers = 3;
+    AudioQueueBufferRef buffers[kNumberBuffers];
+    int bufferIndex;
+    char *buffer;
+    int frames;
+    int lastSample;
 };
+
 
 #endif

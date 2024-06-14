@@ -1,5 +1,5 @@
 #ifndef FMBOX_H
-#define FMBOX_H_H
+#define FMBOX_H
 
 #include <QGroupBox>
 #include <QWidget>
@@ -11,7 +11,6 @@
 #include <string>
 #include "notefactory.h"
 
-using namespace std;
 
 class FmBox : public QGroupBox 
 {

@@ -5,7 +5,7 @@ void Lfoable::addLfoConnection(LfoConnection* lfoConnection) {
 }
 
 Lfoable::~Lfoable() {
-    vector<LfoConnection*>::iterator it;
+    std::vector<LfoConnection*>::iterator it;
     for(it = lfoConnections.begin(); it != lfoConnections.end(); ++it) {
         delete (*it);
     }
@@ -14,7 +14,7 @@ Lfoable::~Lfoable() {
 double Lfoable::getLfoPosition() {
     double lfoModifier;
     lfoModifier = 0;
-    vector<LfoConnection*>::iterator it;
+    std::vector<LfoConnection*>::iterator it;
     for(it = lfoConnections.begin(); it != lfoConnections.end(); ++it) {
         lfoModifier += (*it)->getPos();
     }
@@ -22,7 +22,7 @@ double Lfoable::getLfoPosition() {
 }
 
 void Lfoable::setLfoAmount(double amount) {
-    vector<LfoConnection*>::iterator it;
+    std::vector<LfoConnection*>::iterator it;
     for(it = lfoConnections.begin(); it != lfoConnections.end(); ++it) {
         (*it)->setAmount(amount);
     }

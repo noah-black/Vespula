@@ -32,8 +32,8 @@ Note *NoteFactory::getNote(double freq, enum note n, double velocity) {
 }
 
 NoteFactory::~NoteFactory() {
-    vector<Envelope*>::iterator eit;
-    vector<LFO*>::iterator lit;
+    std::vector<Envelope*>::iterator eit;
+    std::vector<LFO*>::iterator lit;
     for(eit = envelopes.begin(); eit != envelopes.end(); ++eit) {
         delete (*eit);
     }
@@ -113,7 +113,7 @@ Filter *NoteFactory::getFilter(int i) {
 }
 
 void NoteFactory::advanceLfos() {
-    vector<LFO*>::const_iterator iter;
+    std::vector<LFO*>::const_iterator iter;
     for (iter=lfos.begin(); iter != lfos.end(); ++iter) {
         (*iter)->advance();
     }

@@ -9,7 +9,6 @@
 #include "keyboard.h"
 #include <pthread.h>
 
-using namespace std;
 
 struct savedNote {
 	enum note note;
@@ -31,7 +30,7 @@ class Looper : public Keyboard {
    		pthread_mutex_t savedNoteMutex;
 		void playSavedNote(struct savedNote);
 		double getNotesSample();
-		vector< vector<struct savedNote> > savedNotes;
+		std::vector< std::vector<struct savedNote> > savedNotes;
 		int period;
 		int phase;
 };

@@ -11,7 +11,7 @@ class Lfoable {
         double getLfoPosition();
         void setLfoAmount(double amount);
     private:
-        vector<LfoConnection*> lfoConnections;
+        std::vector<LfoConnection*> lfoConnections;
 };
 
 #endif

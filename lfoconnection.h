@@ -3,7 +3,6 @@
 
 #include "lfo.h"
 
-using namespace std;
 
 class LfoConnection {
     public:

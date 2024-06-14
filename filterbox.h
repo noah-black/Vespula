@@ -11,12 +11,12 @@
 #include "filter.h"
 #include "notefactory.h"
 
-using namespace std;
 
 class FilterBox : public QGroupBox {
     Q_OBJECT
 	public:
         FilterBox(Filter *filter, LFO *lfo, NoteFactory *noteFactory, QWidget *parent);
+	virtual ~FilterBox() override {}; // Ensure virtual destructor
     public slots:
 		void setCutoff(int value);
 		void setResonance(int value);

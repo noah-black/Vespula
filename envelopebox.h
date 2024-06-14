@@ -10,12 +10,12 @@
 #include <string>
 #include "envelope.h"
 
-using namespace std;
 
 class EnvelopeBox : public QGroupBox {
     Q_OBJECT
 	public:
         EnvelopeBox(Envelope *envelope, QWidget *parent);
+	~EnvelopeBox() override {}; // Ensure virtual destructor
     public slots:
 		void setAttack(int value);
 		void setDecay(int value);

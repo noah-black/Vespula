@@ -1,7 +1,6 @@
 #ifndef MODULATABLE_H
 #define MODULATABLE_H
 
-using namespace std;
 
 class Modulatable {
     public:

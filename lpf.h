@@ -4,7 +4,6 @@
 #include "soundprocessor.h"
 #include <pthread.h>
 
-using namespace std;
 
 class LPF: public SoundProcessor {
 	public:

@@ -17,7 +17,6 @@
 #include "wavetable.h"
 #include "filterproxy.h"
 
-using namespace std;
 
 class NoteFactory {
 	public:
@@ -57,9 +56,9 @@ class NoteFactory {
 
         waveformType currentSound;
 
-        vector<Envelope*> envelopes; 
-        vector<LFO*> lfos; 
-        vector<Filter*> filters; 
+        std::vector<Envelope*> envelopes; 
+        std::vector<LFO*> lfos; 
+        std::vector<Filter*> filters; 
 };
 
 #endif

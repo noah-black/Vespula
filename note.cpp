@@ -1,7 +1,6 @@
 #include "note.h"
 #include <stdio.h>
 
-using namespace std;
 
 Note::Note(Oscillator *oscillator, Envelope *envelope, double freq, enum note baseNote, double velocity) : envelope(envelope) {
     this->oscillator = oscillator;
@@ -18,10 +17,10 @@ Note::Note(Oscillator *oscillator, Envelope *envelope, double freq, enum note ba
 
 Note::~Note() {
     delete oscillator;
-    vector<EnvelopeConnection*>::iterator it;
+    std::vector<EnvelopeConnection*>::iterator it;
     for(it = envelopeConnections.begin(); it != envelopeConnections.end(); ++it)
         delete (*it);
-    vector<SoundEffect*>::iterator eit;
+    std::vector<SoundEffect*>::iterator eit;
     for(eit = noteEffects.begin(); eit != noteEffects.end(); ++eit)
         delete (*eit);
 }
@@ -77,7 +76,7 @@ bool Note::isDead() {
 }
 
 void Note::advance() {
-    vector<EnvelopeConnection*>::const_iterator iter;
+    std::vector<EnvelopeConnection*>::const_iterator iter;
     for (iter=envelopeConnections.begin(); iter != envelopeConnections.end(); ++iter) {
         isReleased() ? (*iter)->notify(samplesElapsed, releaseSample, velocity) : (*iter)->notify(samplesElapsed, velocity);
     }
@@ -95,7 +94,7 @@ double Note::getSample() {
         sample = killTime == 0 ? 0 : sample*((double)(killTime-killCounter)/(double)killTime);
         killCounter++;
     }
-    for(vector<SoundEffect*>::iterator it = noteEffects.begin(); it != noteEffects.end(); ++it) {
+    for(std::vector<SoundEffect*>::iterator it = noteEffects.begin(); it != noteEffects.end(); ++it) {
         sample = (*it)->getSample(sample);
     }
     advance();

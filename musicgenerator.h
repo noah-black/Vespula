@@ -22,8 +22,8 @@ class MusicGenerator {
     private:
         Keyboard **keyboard;
         NoteFactory *noteFactory;
-        vector< vector<PossibleNote> > notes;
-        vector<waveformType> waveforms;
+        std::vector< std::vector<PossibleNote> > notes;
+        std::vector<waveformType> waveforms;
         WaveTable *waveTable;
 };
 

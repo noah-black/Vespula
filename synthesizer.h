@@ -1,18 +1,17 @@
 #ifndef SYNTH_H
 #define SYNTH_H
 
-#include <math.h>
+#include <cmath>
 #include <vector>
 #include <map>
 #include <QMainWindow>
-#include <QObject> 
-#include <QGroupBox> 
-#include <QCheckBox> 
+#include <QObject>
+#include <QGroupBox>
+#include <QCheckBox>
 #include <QKeyEvent>
 #include <QPushButton>
 #include <QComboBox>
 #include <QLabel>
-#include <QtConcurrentRun>
 #include <QSpinBox>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -39,72 +38,71 @@
 #include "filter.h"
 #include "filterbox.h"
 
-using namespace std;
 
-enum program_state {
-	NOT_RUNNING,
-	RUNNING,
-	QUITTING
+enum class ProgramState {
+    NOT_RUNNING,
+    RUNNING,
+    QUITTING
 };
 
 class Synthesizer : public QMainWindow {
-	Q_OBJECT
-	public:
-		Synthesizer();
-        void start();
-        Keyboard *getCurrentKeyboard();
-	public slots:
-		void done();
-		void changeWaveform(int value);
-		void setTranspose(int value);
-		void setLevel(int i);
-		void setMonophonic(int state);
-	private:
-		void prepareGui();
-        WaveTable waveTable;
-        NoteFactory noteFactory;
-		Looper looper;
-		Keyboard normalKeyboard;
-		Keyboard *keyboard;
-		SoundProcessor *main;
-        SoundManager soundManager;
-		Vibrato vibrato;
-		Chorus chorus;
-		LPF lpf;
-		void initMaps();
-		map<int, enum note> keyMap;
-        vector<SoundEffect*> effects;
-        enum program_state state;
+    Q_OBJECT
+public:
+    Synthesizer();
+    void start();
+    Keyboard *getCurrentKeyboard();
+public slots:
+    void done();
+    void changeWaveform(int value);
+    void setTranspose(int value);
+    void setLevel(int i);
+    void setMonophonic(int state);
+private:
+    void prepareGui();
+    WaveTable waveTable;
+    NoteFactory noteFactory;
+    Looper looper;
+    Keyboard normalKeyboard;
+    Keyboard *keyboard;
+    SoundProcessor *main;
+    SoundManager soundManager;
+    Vibrato vibrato;
+    Chorus chorus;
+    LPF lpf;
+    void initMaps();
+    std::map<int, enum note> keyMap;
+    std::vector<SoundEffect*> effects;
+    ProgramState state;
 
-		QFrame mainArea;
+    QFrame mainArea;
 
-		EnvelopeBox envelopeBox;
-		EnvelopeBox freeEnvelopeBox;
-		LfoBox lfoBox;
-		FilterBox filterBox;
-        
-        VibratoBox vibratoBox;
+    EnvelopeBox envelopeBox;
+    EnvelopeBox freeEnvelopeBox;
+    LfoBox lfoBox;
+    FilterBox filterBox;
 
-        FmBox fmBox;
+    VibratoBox vibratoBox;
 
-        QLabel waveformSelectLabel;
-		WaveformComboBox waveformSelect;
-        QLabel transposeSelectLabel;
-		QSpinBox transposeSelect;
-        QLabel levelSelectLabel;
-		QSlider levelSelect;
-        LooperBox looperBox;
-        QCheckBox monophonicEnabled;
-        QLabel monophonicLabel;
+    FmBox fmBox;
 
-	    QGridLayout layout;
-        MusicGenerator generator;
+    QLabel waveformSelectLabel;
+    WaveformComboBox waveformSelect;
+    QLabel transposeSelectLabel;
+    QSpinBox transposeSelect;
+    QLabel levelSelectLabel;
+    QSlider levelSelect;
+    LooperBox looperBox;
+    QCheckBox monophonicEnabled;
+    QLabel monophonicLabel;
 
-        double level;
+    QGridLayout layout;
+    MusicGenerator generator;
 
-	protected:
-		void keyPressEvent(QKeyEvent *event);
-		void keyReleaseEvent(QKeyEvent *event);
+    double level;
+
+protected:
+    void keyPressEvent(QKeyEvent *event) override;
+    void keyReleaseEvent(QKeyEvent *event) override;
 };
 
 #endif

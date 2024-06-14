@@ -15,7 +15,7 @@ double Looper::getSample() {
 	pthread_mutex_lock(&noteMutex);
 	pthread_mutex_lock(&mutexsum);
 	if(!savedNotes[phase].empty()) {
-		for(vector<struct savedNote>::iterator it = savedNotes[phase].begin(); it != savedNotes[phase].end(); ++it)
+		for(std::vector<struct savedNote>::iterator it = savedNotes[phase].begin(); it != savedNotes[phase].end(); ++it)
 			playSavedNote(*it);
 	}
 	phase++;
@@ -27,7 +27,7 @@ double Looper::getSample() {
 
 double Looper::getNotesSample() {
 	double sample = 0;
-	deque<Note*>::iterator it;
+	std::deque<Note*>::iterator it;
 	pthread_mutex_lock(&noteMutex);
 	pthread_mutex_lock(&lastNoteMutex);
     it = notes.begin();
@@ -94,9 +94,9 @@ void Looper::setDuration(double value) {
 void Looper::clear() {
     pthread_mutex_lock(&noteMutex);
     pthread_mutex_lock(&mutexsum);
-    for(vector< vector<struct savedNote> >::iterator it = savedNotes.begin(); it != savedNotes.end(); ++it)
+    for(std::vector< std::vector<struct savedNote> >::iterator it = savedNotes.begin(); it != savedNotes.end(); ++it)
         it->clear();
-    deque<Note*>::iterator it;
+    std::deque<Note*>::iterator it;
     it = notes.begin();
     while(it != notes.end()) {
         delete (*it);

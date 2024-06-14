@@ -14,7 +14,6 @@
 #include "notefactory.h"
 #include "note.h"
 
-using namespace std;
 
 class Keyboard : public SoundProcessor {
 	public:
@@ -36,7 +35,7 @@ class Keyboard : public SoundProcessor {
         void cullNotes();
         void setWaveform(waveformType waveform);
 	protected:
-		map<enum note, double> freqs;
+		std::map<enum note, double> freqs;
 		bool isNote(char c);
 		virtual void releaseNoteInternal(enum note n);
 		bool isNatural(enum note n);
@@ -49,8 +48,8 @@ class Keyboard : public SoundProcessor {
 		int getInterval(enum note);
         NoteFactory *noteFactory;
 
-		deque<Note*> notes;
-		map<enum note, Note*> lastNoteFor;
+		std::deque<Note*> notes;
+		std::map<enum note, Note*> lastNoteFor;
 
         unsigned int voices;
 

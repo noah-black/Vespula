@@ -11,6 +11,7 @@ class WaveformComboBox : public QComboBox {
     Q_OBJECT
     public:
         WaveformComboBox(QWidget *parent);
+	virtual ~WaveformComboBox() override {}; // Ensure virtual destructor
         waveformType getWaveformType(int i);
 };
 

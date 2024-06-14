@@ -6,7 +6,6 @@
 #include <pthread.h>
 #include "keyboard.h"
 
-using namespace std;
 
 class Vibrato : public SoundProcessor {
 	public:

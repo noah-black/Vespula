@@ -1,23 +1,21 @@
 #include "lfobox.h"
-#include <stdio.h>
+#include <cmath>
+#include <cstdio>
 
 LfoBox::LfoBox(LFO *lfo, QWidget *parent) :
     QGroupBox(parent),
     lfo(lfo),
-    lfoLabel(this),
-    freqSelect(this),
-    freqLabel(this),
+    lfoLabel("LFO", this),
+    freqSelect(Qt::Horizontal, this),
+    freqLabel("Freq", this),
     waveformSelect(this),
-    waveformLabel(this)
+    waveformLabel("Waveform", this)
 {
-    lfoLabel.setText("LFO");
-
+    // Set up frequency slider
     freqSelect.setRange(1, 100);
-    freqLabel.setText("Freq");
     freqSelect.setValue(13);
 
-    waveformLabel.setText("Waveform");
-
+    // Set up layout
     layout.addWidget(&lfoLabel, 0, 0, 1, -1);
     layout.addWidget(&freqSelect, 1, 0, 2, 1);
     layout.addWidget(&freqLabel, 4, 0, 1, 1, Qt::AlignHCenter);
@@ -25,17 +23,23 @@ LfoBox::LfoBox(LFO *lfo, QWidget *parent) :
     layout.addWidget(&waveformLabel, 2, 1, 1, 1, Qt::AlignHCenter);
     this->setLayout(&layout);
 
-    QObject::connect(&freqSelect, SIGNAL(valueChanged(int)), this, SLOT(setFreq(int)));
-    QObject::connect(&freqSelect, SIGNAL(valueChanged(int)), this, SLOT(setFocus()));
+    // Connect signals and slots
+    connect(&freqSelect, &QSlider::valueChanged, this, &LfoBox::setFreq);
+    connect(&freqSelect, &QSlider::valueChanged, this, [this]() { this->setFocus(); });
 
-    QObject::connect(&waveformSelect, SIGNAL(activated(int)), this, SLOT(changeWaveform(int)));
-    QObject::connect(&waveformSelect, SIGNAL(activated(int)), this, SLOT(setFocus()));
+
+    connect(&waveformSelect, QOverload<int>::of(&QComboBox::activated), this, &LfoBox::changeWaveform);
+    connect(&waveformSelect, QOverload<int>::of(&QComboBox::activated), this, [this]() { this->setFocus(); });
 }
 
 void LfoBox::setFreq(int value) {
-    lfo->setFreq(pow((double)value/100, 2)*30);
+    lfo->setFreq(std::pow(static_cast<double>(value) / 100.0, 2) * 30);
 }
 
 void LfoBox::changeWaveform(int i) {
     lfo->setWaveform(waveformSelect.getWaveformType(i));
+}
+
+LfoBox::~LfoBox() {
+    // Destructor code here if needed
 }

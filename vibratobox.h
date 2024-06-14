@@ -10,13 +10,14 @@
 #include <string>
 #include "vibrato.h"
 
-using namespace std;
 
 class VibratoBox : public QGroupBox 
 {
     Q_OBJECT
 	public:
         VibratoBox(Vibrato *vibrato, QWidget *parent);
+	virtual ~VibratoBox() override {}; // Ensure virtual destructor
+
     public slots:
 		void setVibDepth(int value);
 		void setVibPeriod(int value);

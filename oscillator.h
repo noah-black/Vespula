@@ -6,7 +6,6 @@
 #include "wavetable.h"
 #include <string>
 
-using namespace std;
 
 class Oscillator : public SoundProcessor {
 	public:

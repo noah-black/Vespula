@@ -11,22 +11,23 @@
 #include "lfo.h"
 #include "waveformcombobox.h"
 
-using namespace std;
-
 class LfoBox : public QGroupBox {
     Q_OBJECT
-	public:
+    public:
         LfoBox(LFO *lfo, QWidget *parent);
+	virtual ~LfoBox();
+
     public slots:
-		void setFreq(int value);
+	void setFreq(int value);
         void changeWaveform(int i);
-	private:
+
+    private:
         LFO *lfo;
         QGridLayout layout;
-		QLabel lfoLabel;
-		QSlider freqSelect;
-		QLabel freqLabel;
+	QLabel lfoLabel;
+	QSlider freqSelect;
+	QLabel freqLabel;
         WaveformComboBox waveformSelect;
-		QLabel waveformLabel;
+	QLabel waveformLabel;
 };
 #endif

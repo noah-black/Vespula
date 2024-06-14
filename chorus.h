@@ -5,15 +5,14 @@
 #include "soundprocessor.h"
 #include <pthread.h>
 
-using namespace std;
 
 struct voice {
 	int phase;
 	double period;
 	double cursor;
 	double lastSample;
-	queue<double> alreadyRead;
-	queue<double> *toRead;
+	std::queue<double> alreadyRead;
+	std::queue<double> *toRead;
 };
 
 class Chorus : public SoundProcessor {

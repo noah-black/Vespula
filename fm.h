@@ -7,7 +7,6 @@
 #include "lfoable.h"
 #include <vector>
 
-using namespace std;
 
 class FM : public Oscillator, public Modulatable, public Lfoable {
 	public:

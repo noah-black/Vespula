@@ -5,7 +5,6 @@
 #include "oscillators.h"
 #include <set>
 
-using namespace std;
 
 class LFO {
     public:

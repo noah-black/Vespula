@@ -1,106 +1,82 @@
 #include "soundmanager.h"
+#include <AudioToolbox/AudioToolbox.h>
+
+static const int kNumberBuffers = 3;
+static const int kBufferSize = 1024;
 
 SoundManager::SoundManager() {
-	configureSoundDevice();
-	buffer = new char[frames*4];
+    configureSoundDevice();
+    buffer = new char[kBufferSize];
     bufferIndex = 0;
 }
-void SoundManager::writeSample(int sample) { // returns frames written (usually zero)
+
+void SoundManager::writeSample(int sample) {
     lastSample = sample;
-	int rc = frames;
     sample = sample > CEILING ? CEILING : sample;
     sample = sample < -CEILING ? -CEILING : sample;
-	buffer[bufferIndex * 4] = sample & 255;
-	buffer[(bufferIndex * 4) + 2] = sample & 255;
-	buffer[(bufferIndex * 4) + 1] = sample >> 8;
-	buffer[(bufferIndex * 4) + 3] = sample >> 8;
+
+    buffer[bufferIndex * 4] = sample & 255;
+    buffer[(bufferIndex * 4) + 2] = sample & 255;
+    buffer[(bufferIndex * 4) + 1] = sample >> 8;
+    buffer[(bufferIndex * 4) + 3] = sample >> 8;
+
     bufferIndex++;
     if(bufferIndex == frames) {
-        rc = snd_pcm_writei(handle, buffer, frames);
-		while(rc == -EPIPE) {
-			printf("error from writei: %s\n", snd_strerror(rc));
-            rc = snd_pcm_recover(handle, rc, 1);
-            if(rc != 0) {
-			    fprintf(stderr, "Could not recover from underrun!\n");
-                exit(1);
-            }
-            rc = snd_pcm_writei(handle, buffer, frames);
-        }
-		if (rc < 0) 
-			printf("error from writei: %s\n", snd_strerror(rc));
-		else if (rc != frames) 
-			printf("short write, write %d frames\n", rc);
+        // Enqueue buffer for playback
+        AudioQueueBufferRef audioBuffer = buffers[bufferIndex % kNumberBuffers];
+        memcpy(audioBuffer->mAudioData, buffer, kBufferSize);
+        audioBuffer->mAudioDataByteSize = kBufferSize;
+        AudioQueueEnqueueBuffer(queue, audioBuffer, 0, NULL);
         bufferIndex = 0;
-	}
+    }
 }
 
 void SoundManager::configureSoundDevice() {
-	unsigned int val;
-	int rc;
-	snd_pcm_hw_params_t *hw_params;
-	snd_pcm_sw_params_t *sw_params;
+    AudioStreamBasicDescription format;
+    memset(&format, 0, sizeof(format));
+    format.mSampleRate = SAMPLE_RATE;
+    format.mFormatID = kAudioFormatLinearPCM;
+    format.mFormatFlags = kLinearPCMFormatFlagIsSignedInteger | kLinearPCMFormatFlagIsPacked;
+    format.mFramesPerPacket = 1;
+    format.mChannelsPerFrame = 2;
+    format.mBitsPerChannel = 16;
+    format.mBytesPerPacket = 4;
+    format.mBytesPerFrame = 4;
 
-	frames = 32;
-	hw_buffer = frames*16;
-	val = SAMPLE_RATE;
-
-	rc = snd_pcm_open(&handle, "default", SND_PCM_STREAM_PLAYBACK, 0);
-	if (rc < 0) {
-		fprintf(stderr, 
-				"unable to open pcm device: %s\n",
-				snd_strerror(rc));
-		exit(1);
-	}
-	snd_pcm_hw_params_alloca(&hw_params);
-	snd_pcm_hw_params_any(handle, hw_params);
-	snd_pcm_hw_params_set_access(handle, hw_params, SND_PCM_ACCESS_RW_INTERLEAVED);
-	snd_pcm_hw_params_set_format(handle, hw_params, SND_PCM_FORMAT_S16_LE);
-	snd_pcm_hw_params_set_channels(handle, hw_params, 2);
-	snd_pcm_hw_params_set_rate_near(handle, hw_params, &val, 0);
-    while(val != SAMPLE_RATE) {
-        printf("unable to set sample rate, retrying: %s\n", snd_strerror(rc));
-	    snd_pcm_hw_params_set_rate_near(handle, hw_params, &val, 0);
+    OSStatus status = AudioQueueNewOutput(&format, AudioQueueCallback, this, NULL, kCFRunLoopCommonModes, 0, &queue);
+    if(status != noErr) {
+        fprintf(stderr, "Error initializing Audio Queue: %d\n", status);
+        exit(1);
     }
-	rc = snd_pcm_hw_params_set_buffer_size_near(handle, hw_params, &hw_buffer);
-    if (rc < 0) {
-        fprintf(stderr, "unable to set buffer: %s\n", snd_strerror(rc));
+
+    frames = kBufferSize / format.mBytesPerFrame;
+    for(int i = 0; i < kNumberBuffers; ++i) {
+        status = AudioQueueAllocateBuffer(queue, kBufferSize, &buffers[i]);
+        if(status != noErr) {
+            fprintf(stderr, "Error allocating buffer: %d\n", status);
+            exit(1);
+        }
+        buffers[i]->mAudioDataByteSize = kBufferSize;
+        memset(buffers[i]->mAudioData, 0, kBufferSize);
+        AudioQueueEnqueueBuffer(queue, buffers[i], 0, NULL);
+    }
+
+    status = AudioQueueStart(queue, NULL);
+    if(status != noErr) {
+        fprintf(stderr, "Error starting Audio Queue: %d\n", status);
         exit(1);
-	}
-    hw_buffer /= 2;
-    rc = snd_pcm_hw_params_set_period_size_near(handle, hw_params, &frames, 0);
-    if (rc < 0) {
-        fprintf(stderr, "unable to set period_size: %s\n", snd_strerror(rc));
-        exit(1);
-	}
-    rc = snd_pcm_hw_params(handle, hw_params);
-    if (rc < 0) {
-        fprintf(stderr, "unable to set hw parameters: %s\n", snd_strerror(rc));
-        exit(1);
-	}
-	snd_pcm_sw_params_alloca(&sw_params);
-    rc = snd_pcm_sw_params_set_start_threshold(handle, sw_params, hw_buffer-frames);
-	if (rc < 0) {
-		fprintf(stderr, "unable to set start threshold: %s\n", snd_strerror(rc));
-		exit(1);
-	}
-    rc = snd_pcm_sw_params_set_avail_min(handle, sw_params, 4);
-	if (rc < 0) {
-		fprintf(stderr, "unable to set avail min: %s\n", snd_strerror(rc));
-		exit(1);
-	}
-	rc = snd_pcm_sw_params(handle, sw_params);
-	if (rc < 0) {
-		fprintf(stderr, "unable to set sw parameters: %s\n", snd_strerror(rc));
-		exit(1);
-	}
-	if (rc < 0) {
-		fprintf(stderr, "unable to set sw parameters: %s\n", snd_strerror(rc));
-		exit(1);
-	}
+    }
+}
+
+void SoundManager::AudioQueueCallback(void *custom_data, AudioQueueRef queue, AudioQueueBufferRef buffer) {
+    // This function will be called when an audio buffer has finished playing
+    SoundManager *soundManager = static_cast<SoundManager *>(custom_data);
+    memset(buffer->mAudioData, 0, buffer->mAudioDataByteSize); // Clear the buffer
+    AudioQueueEnqueueBuffer(queue, buffer, 0, NULL); // Re-enqueue the buffer for continuous playback
 }
 
 SoundManager::~SoundManager() {
-    snd_pcm_drain(handle);
-    snd_pcm_close(handle);
+    AudioQueueStop(queue, true);
+    AudioQueueDispose(queue, true);
     delete[] buffer;
 }

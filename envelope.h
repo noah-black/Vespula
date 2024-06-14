@@ -3,7 +3,6 @@
 
 #include "soundprocessor.h"
 
-using namespace std;
 
 class Envelope {
 	public:

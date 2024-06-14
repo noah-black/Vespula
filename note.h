@@ -9,7 +9,6 @@
 #include <string>
 #include <vector>
 
-using namespace std;
 
 enum note_state {
 	held,
@@ -39,8 +38,8 @@ class Note : public SoundProcessor {
         void kill(int killTime);
         void addNoteEffect(SoundEffect *effect);
 	protected:
-        vector<EnvelopeConnection*> envelopeConnections;
-        vector<SoundEffect*> noteEffects;
+        std::vector<EnvelopeConnection*> envelopeConnections;
+        std::vector<SoundEffect*> noteEffects;
 		virtual void advance();
 		enum note baseNote;
 		enum note_state state;

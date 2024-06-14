@@ -9,6 +9,7 @@ INCLUDEPATH += .
 LIBS += -lasound
 QMAKE_CXXFLAGS_DEBUG += -pg
 QMAKE_LFLAGS_DEBUG += -pg
+QT += core gui multimedia
 
 # Input
 HEADERS += chorus.h \

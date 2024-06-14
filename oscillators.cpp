@@ -1,7 +1,6 @@
 #include "oscillators.h"
 #include <stdio.h>
 
-using namespace std;
 
 double Oscillators::triangle(double phase, double period) {
 	return (fabs(((phase*4)/period) - 2.0) - 1.0);

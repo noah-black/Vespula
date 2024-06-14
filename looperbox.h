@@ -10,12 +10,12 @@
 #include <QSpinBox>
 #include <QCheckBox>
 
-using namespace std;
 
 class LooperBox : public QGroupBox {
     Q_OBJECT
     public:
         LooperBox(Keyboard **currentKeyboard, Keyboard *normalKeyboard, Looper *looper, QWidget *parent);
+	virtual ~LooperBox() override {}; // Ensure virtual destructor
     public slots:
         void setLooperEnabled(int state);
 		void setLooperDuration(int value);

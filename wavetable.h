@@ -7,7 +7,6 @@
 #define MIDDLE_A_INDEX 36
 #define ALIASING_THRESHOLD 110
 
-using namespace std;
 
 class WaveTable {
     public:

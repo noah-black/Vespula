@@ -6,12 +6,12 @@ MusicGenerator::MusicGenerator(Keyboard **keyboard, NoteFactory *noteFactory, Wa
     waveTable(waveTable)
 {
     srand ( time(NULL) );
-    notes.push_back(vector<PossibleNote>());
-    notes.push_back(vector<PossibleNote>());
-    notes.push_back(vector<PossibleNote>());
-    notes.push_back(vector<PossibleNote>());
-    notes.push_back(vector<PossibleNote>());
-    notes.push_back(vector<PossibleNote>());
+    notes.push_back(std::vector<PossibleNote>());
+    notes.push_back(std::vector<PossibleNote>());
+    notes.push_back(std::vector<PossibleNote>());
+    notes.push_back(std::vector<PossibleNote>());
+    notes.push_back(std::vector<PossibleNote>());
+    notes.push_back(std::vector<PossibleNote>());
 
     notes[0].push_back(PossibleNote(n1, 40));
     notes[0].push_back(PossibleNote(n5, 40));

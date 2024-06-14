@@ -4,7 +4,6 @@
 #include "envelope.h"
 #include "modulatable.h"
 
-using namespace std;
 
 class EnvelopeConnection {
     public:

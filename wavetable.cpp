@@ -5,7 +5,6 @@
 
 #define EPSILON 0.001
 
-using namespace std;
 
 WaveTable::WaveTable() {
     buildSawtooth();
@@ -63,7 +62,7 @@ double WaveTable::getSample(double phase, double freq, double **table) {
     cursor = ratio*phase;
     while(fabs((amountRead-ratio))/ratio > EPSILON && amountRead < ratio) {
         cursor = fmod(cursor, period);
-        amountLeft = min(min(1.0, ratio-amountRead), min(ratio-amountRead, min(period-cursor, (fabs((fmod(cursor, 1)) < EPSILON)?cursor+1:ceil(cursor))-cursor)));
+        amountLeft = std::min(std::min(1.0, ratio-amountRead), std::min(ratio-amountRead, std::min(period-cursor, (fabs((fmod(cursor, 1)) < EPSILON)?cursor+1:ceil(cursor))-cursor)));
         index = (int)floor(cursor);
         amountRead += amountLeft;
         cursor += amountLeft;

@@ -1,6 +1,5 @@
 #include "keyboard.h"
 
-using namespace std;
 
 Keyboard::Keyboard(NoteFactory *noteFactory) : 
 noteFactory(noteFactory)
@@ -70,7 +69,7 @@ void Keyboard::releaseNoteInternal(enum note n) {
 
 double Keyboard::getSample() {
 	double sample = 0;
-	deque<Note*>::iterator it;
+	std::deque<Note*>::iterator it;
     pthread_mutex_lock(&noteMutex);
     pthread_mutex_lock(&lastNoteMutex);
 	it = notes.begin();
@@ -104,7 +103,7 @@ void Keyboard::setTransposeInKey(int i) {
 	enum note oldNote, newNote;
 	double oldFreq, newFreq;
 	int oldTransposeInKey = transposeInKey;
-	deque<Note*>::iterator it;
+	std::deque<Note*>::iterator it;
 	transposeInKey = i;
     pthread_mutex_lock(&noteMutex);
 	for(it = notes.begin(); it != notes.end(); ++it) {
@@ -227,7 +226,7 @@ void Keyboard::clearAll() {
     pthread_mutex_lock(&noteMutex);
     pthread_mutex_lock(&lastNoteMutex);
     lastNoteFor.clear();
-    deque<Note*>::iterator it;
+    std::deque<Note*>::iterator it;
     it = notes.begin();
     while(it != notes.end()) {
         delete (*it);
@@ -238,7 +237,7 @@ void Keyboard::clearAll() {
 }
 
 void Keyboard::cullNotes() {
-    deque<Note*>::iterator it;
+    std::deque<Note*>::iterator it;
     unsigned int i = notes.size();
     for(it = notes.begin(); i > voices; ++it) {
         int killTime;
@@ -251,7 +250,7 @@ void Keyboard::cullNotes() {
 void Keyboard::setWaveform(waveformType waveform) {
     noteFactory->setWaveform(waveform);
     pthread_mutex_lock(&noteMutex);
-    deque<Note*>::iterator it;
+    std::deque<Note*>::iterator it;
     for(it = notes.begin(); it != notes.end(); ++it)
         (*it)->setWaveform(waveform);
     pthread_mutex_unlock(&noteMutex);

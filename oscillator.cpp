@@ -1,6 +1,5 @@
 #include "oscillator.h"
 #include <stdio.h>
-using namespace std;
 
 Oscillator::Oscillator(WaveTable *waveTable, waveformType waveform, double freq) :
     waveTable(waveTable)

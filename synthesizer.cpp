@@ -29,7 +29,7 @@ Synthesizer::Synthesizer() :
 {
     level = 0.01;
     initMaps();
-    state = NOT_RUNNING;
+    state = ProgramState::NOT_RUNNING;
     main = &vibrato;
     //effects.push_back(noteFactory.getFilter(0));
     prepareGui();
@@ -37,10 +37,10 @@ Synthesizer::Synthesizer() :
 
 void Synthesizer::start() {
     int sample;
-    state = RUNNING;
-    while(state == RUNNING) {
+    state = ProgramState::RUNNING;
+    while(state == ProgramState::RUNNING) {
         sample = (int)(floor((main->getSample()*CEILING) * level)+0.5);
-        for(vector<SoundEffect*>::iterator it = effects.begin(); it != effects.end(); ++it) {
+        for(std::vector<SoundEffect*>::iterator it = effects.begin(); it != effects.end(); ++it) {
             sample = (*it)->getSample(sample);
         }
         soundManager.writeSample(sample);
@@ -125,7 +125,7 @@ void Synthesizer::keyReleaseEvent(QKeyEvent *event) {
 }
 
 void Synthesizer::done() {
-    state = QUITTING;
+    state = ProgramState::QUITTING;
 }
 
 void Synthesizer::changeWaveform(int i) {
