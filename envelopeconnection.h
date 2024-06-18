@@ -4,16 +4,16 @@
 #include "envelope.h"
 #include "modulatable.h"
 
-
 class EnvelopeConnection {
-    public:
-        EnvelopeConnection(Envelope *envelope, Modulatable *target, double *amount);
-        void notify(int samplesElapsed, double velocity);
-        void notify(int samplesElapsed, int releaseSample, double velocity);
-    private:
-        Envelope *envelope;
-        Modulatable *target;
-        double *amount;
+public:
+  EnvelopeConnection(Envelope *envelope, Modulatable *target, double *amount);
+  void notify(int samplesElapsed, double velocity);
+  void notify(int samplesElapsed, int releaseSample, double velocity);
+
+private:
+  Envelope *envelope;
+  Modulatable *target;
+  double *amount;
 };
 
 #endif

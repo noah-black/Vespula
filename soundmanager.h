@@ -1,29 +1,34 @@
-#ifndef SOUND_MANAGER_H
-#define SOUND_MANAGER_H
-
-#define SAMPLE_RATE 44100.0
+#ifndef SOUNDMANAGER_H
+#define SOUNDMANAGER_H
 
 #include <AudioToolbox/AudioToolbox.h>
-#include "soundprocessor.h"
 
+constexpr int kFramesPerBuffer = 1 << 9;  // Adjust buffer size as needed
+constexpr int kBitsPerChannel = 16;
+constexpr int kChannelsPerFrame = 2;
+constexpr int kBytesPerFrame = kChannelsPerFrame * kBitsPerChannel / 8;
 
 class SoundManager {
-  public:
-    SoundManager();
-    ~SoundManager();
-    void writeSample(int sample);
-  private:
-    void configureSoundDevice();
-    static void AudioQueueCallback(void *custom_data, AudioQueueRef queue, AudioQueueBufferRef buffer);
+public:
+  SoundManager();
+  ~SoundManager();
+  void writeSample(int sample);
 
-    AudioQueueRef queue;
-    static const int kNumberBuffers = 3;
-    AudioQueueBufferRef buffers[kNumberBuffers];
-    int bufferIndex;
-    char *buffer;
-    int frames;
-    int lastSample;
+private:
+  static void AudioQueueCallback(void *custom_data, AudioQueueRef queue,
+                                 AudioQueueBufferRef buffer);
+
+  AudioQueueRef audio_queue_;
+  struct AudioBuffer {
+    AudioBuffer() : buffer() {}
+    AudioQueueBufferRef buffer_ref;
+    char buffer[kFramesPerBuffer * kBytesPerFrame];
+    int frame_index = 0;
+  };
+  AudioBuffer buffer_[2];
+  int current_buffer_ = 0;
+  int frames_per_buffer_;
+  bool is_shut_down_ = false;
 };
 
-
-#endif
+#endif // SOUNDMANAGER_H

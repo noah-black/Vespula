@@ -1,15 +1,16 @@
+#include "synthesizer.h"
 #include <QApplication>
 #include <QtConcurrent>
-#include "synthesizer.h"
 
 int main(int argc, char *argv[]) {
-    QApplication app(argc, argv);
-    app.setStyleSheet("QGroupBox { border: 1px solid black; }");
+  QApplication app(argc, argv);
+  app.setStyleSheet("QGroupBox { border: 1px solid black; }");
 
-    Synthesizer synth;
-    QObject::connect(&app, &QApplication::lastWindowClosed, &synth, &Synthesizer::done);
+  Synthesizer synth;
+  QObject::connect(&app, &QApplication::lastWindowClosed, &synth,
+                   &Synthesizer::done);
 
-    QFuture<void> future = QtConcurrent::run([&synth]() { synth.start(); });
+  QFuture<void> future = QtConcurrent::run([&synth]() { synth.start(); });
 
-    return app.exec();
+  return app.exec();
 }
